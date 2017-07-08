@@ -1,0 +1,31 @@
+{
+    "manifest_version": 2,
+
+    "name": "Stream Locker",
+	"description": "Load streaming sites videos in the lightweight native HTML5 player and block annoying popups.",
+    "version": "0.0.4",
+	"author": "Marco Bonelli",
+	"minimum_chrome_version": "58.0.3029.81",
+
+    "background": {
+		"scripts": [
+			"/my_log.js",
+			"/background.js"
+		] 
+	},
+	
+	"permissions": [
+		"tabs",
+		"webRequest",
+		"webRequestBlocking",
+		"<all_urls>"
+	],
+	
+	"icons": {
+		"16": "images/icons/16.png",
+		"19": "images/icons/19.png",
+		"38": "images/icons/38.png",
+		"64": "images/icons/64.png",
+		"128": "images/icons/128.png"
+	}
+}
