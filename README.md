@@ -6,9 +6,9 @@ This extension blocks annoying popups on streaming sites and intercepts media we
 Installation
 ------------
 
-To install Stream Locker you can either download the full repo, put it in a folder and drop it in your `chrome://extensions` page, or check the available [releases][1], which provide an archive containing all the files and a `.crx` package to manually install the extension.
+To install Stream Locker **check the available [releases][1]**, which provide a packaged `.crx` file which can be dragged and dropped int your `chrome://extensions` page to manually install the extension. You can also install Stream Locker from the same page by checking the checkbox "develoepr mode", then choosing "Load unpacked extension" and selecting the folder containing the extension source.
 
-**Please note** taht developer mode extensions (i.e. extensions not installed from the store, like this one) will cause Chrome to raise a warning at startup recommending to disable such extensions. A workaround to hide this annoying message can be found [here][2].
+**Please note** taht developer mode extensions (not installed from the store, like this one) will cause Chrome to raise a warning at startup recommending to disable them. A workaround to hide this annoying message can be found [here][2].
 
 
 Player keyboard/mouse shortcuts
