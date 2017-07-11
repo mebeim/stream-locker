@@ -1,4 +1,4 @@
-/*
+/**
  * This file is part of the Stream Locker Chrome extension.
  * Copyright (c) 2017 Marco Bonelli.
  * 
