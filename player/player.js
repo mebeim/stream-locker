@@ -14,7 +14,7 @@
 
 Object.defineProperties(Number.prototype, {
 	limit: {
-		value: function(a, b) {
+		value: (a, b) => {
 			var res = this;
 			if (typeof a == "number" && res < a) res = a;
 			if (typeof b == "number" && res > b) res = b;
@@ -29,9 +29,8 @@ function getQueryStringParameters() {
 	if (~window.location.href.indexOf('?')) {
 		qs = window.location.href.split('?')[1].split('&').map((el) => el.split('='));
 
-		for (let i = 0; i < qs.length; i++) {
+		for (let i = 0; i < qs.length; i++)
 			res[qs[i][0]] = decodeURIComponent(qs[i][1]);
-		}
 	}
 
 	return res;
@@ -46,7 +45,7 @@ document.title = queryParams.title;
 player.volume = parseFloat(localStorage.volume) || 0.5;
 player.src = queryParams.src;
 
-document.documentElement.addEventListener('keypress', function(e) {
+document.documentElement.addEventListener('keypress', e => {
 	switch (e.code) {
 		case "Space":
 			if (player.paused) player.play();
@@ -59,7 +58,7 @@ document.documentElement.addEventListener('keypress', function(e) {
 	}
 });
 
-document.documentElement.addEventListener('keydown', function(e) {
+document.documentElement.addEventListener('keydown', e => {
 	switch (e.code) {
 		case "ArrowLeft":
 			player.currentTime = (player.currentTime - 10).limit(0, player.duration);
@@ -76,7 +75,7 @@ document.documentElement.addEventListener('keydown', function(e) {
 	}
 });
 
-document.documentElement.addEventListener('keydown', function(e) {
+document.documentElement.addEventListener('keydown', e => {
 	switch (e.key) {
 		case "+":
 			player.volume = (player.volume + 0.05).limit(0, 1);
@@ -87,12 +86,12 @@ document.documentElement.addEventListener('keydown', function(e) {
 	}
 });
 
-player.addEventListener('click', function(e) {
+player.addEventListener('click', e => {
 	if (player.paused) player.play();
 	else player.pause();
 });
 
-player.addEventListener('dblclick', function(e) {
+player.addEventListener('dblclick', e => {
 	if (document.webkitIsFullScreen) {
 		document.webkitExitFullscreen()
 	} else {
@@ -100,20 +99,20 @@ player.addEventListener('dblclick', function(e) {
 	}
 });
 
-player.addEventListener('mousewheel', function(e) {
+player.addEventListener('mousewheel', e => {
 	if (e.wheelDelta) {
 		player.volume = (player.volume + Math.sign(e.wheelDelta) * 0.05).limit(0, 1);
 	}
 });
 
-player.addEventListener('volumechange', function(e) {
+player.addEventListener('volumechange', e => {
 	localStorage.volume = player.volume;
 });
 
-document.documentElement.addEventListener('mousemove', function(e) {
+document.documentElement.addEventListener('mousemove', e => {
 	document.body.style.cursor = 'default';
 	clearTimeout(mouseHideTimeoutID);
-	mouseHideTimeoutID = setTimeout(function() {
+	mouseHideTimeoutID = setTimeout(() => {
 		document.body.style.cursor = 'none';
 	}, 3000);
 });
