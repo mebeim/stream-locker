@@ -14,7 +14,7 @@
 
 Object.defineProperties(Number.prototype, {
 	limit: {
-		value: (a, b) => {
+		value: function (a, b) {
 			var res = this;
 			if (typeof a == "number" && res < a) res = a;
 			if (typeof b == "number" && res > b) res = b;
