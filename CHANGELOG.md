@@ -1,10 +1,10 @@
 Stream Locker Changelog
 =======================
 
-Versions:
----------
+Versions
+--------
 
-- **0.0.4** [2017-07-08]
+- **0.0.4** [2017-07-08] - [Release!][v0.0.4]
 	- Added fullscreen toggle via F key and mouse hide on idle.
 	- Player now remembers last volume set.
 	- Fixed a bug where any tab was closed if opened when viewing a blacklisted site.
@@ -24,3 +24,5 @@ Versions:
 
 - **0.0.1** [2016-12-19]
 	- First alpha version!
+
+ [v0.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.4
