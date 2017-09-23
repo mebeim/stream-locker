@@ -20,8 +20,10 @@ Player keyboard/mouse shortcuts
  - **Left arrow**: skip backward 10 seconds.
  - **Up arrow**: skip forward 30 seconds.
  - **Down arrow**: skip backward 30 seconds.
+ - **Plus (`+`) key**: volume +5%.
+ - **Minus (`-`) key**: volume -5%.
  - **Mouse left click**: play/pause.
- - **Mouse double click**: toggle full screen.
+ - **Mouse double left click**: toggle full screen.
  - **Mouse wheel scroll Up**: volume +5%.
  - **Mouse wheel scroll Down**: volume -5%.
 

@@ -76,6 +76,17 @@ document.documentElement.addEventListener('keydown', function(e) {
 	}
 });
 
+document.documentElement.addEventListener('keydown', function(e) {
+	switch (e.key) {
+		case "+":
+			player.volume = (player.volume + 0.05).limit(0, 1);
+			break;
+		case "-":
+			player.volume = (player.volume - 0.05).limit(0, 1);
+			break;
+	}
+});
+
 player.addEventListener('click', function(e) {
 	if (player.paused) player.play();
 	else player.pause();
