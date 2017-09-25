@@ -42,8 +42,9 @@ var player		= document.getElementById('player'),
 	mouseHideTimeoutID;
 	
 document.title = queryParams.title;
-player.volume = parseFloat(localStorage.volume) || 0.5;
+player.type = queryParams.contentType;
 player.src = queryParams.src;
+player.volume = parseFloat(localStorage.volume) || 0.5;
 
 document.documentElement.addEventListener('keypress', e => {
 	switch (e.code) {
