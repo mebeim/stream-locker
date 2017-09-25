@@ -95,6 +95,15 @@ function handleRequests(details) {
 	}
 }
 
+function injectPopupBlocker(tabID) {
+	var code = 'var s = document.createElement("script");                    \
+	            s.id = "stream-locker-block-popups";                         \
+	            s.src = chrome.extension.getURL("/scripts/block_popups.js"); \
+	            document.head.appendChild(s);';
+	
+	chrome.tabs.executeScript(tabID, {code: code, allFrames: true});
+}
+
 function start() {
 	chrome.webRequest.onHeadersReceived.addListener(handleRequests, {
 		urls: [ // Is checking extensions the right way?

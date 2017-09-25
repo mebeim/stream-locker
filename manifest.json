@@ -27,5 +27,9 @@
 		"38": "images/icons/38.png",
 		"64": "images/icons/64.png",
 		"128": "images/icons/128.png"
-	}
+	},
+	
+	"web_accessible_resources": [
+		"/scripts/block_popups.js"
+	]
 }
