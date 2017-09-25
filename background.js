@@ -125,7 +125,7 @@ function blockPopupWindow(tabID, info, tab) {
 					if (~ref[0].indexOf(address)) {
 						chrome.windows.remove(tab.windowId, function() {
 							// It's a shame this is the only way to know who the fuck opened the window.
-							// Also, this works about once in a hundred times because of the timing, so yeah...
+							// Also, this works about once in a hundred times because of the timing, so yeah... pretty sad.
 							_log('Blocked popup window (blacklisted referrer) [window #' + tab.windowId + ': ' + info.url + ']', 'orange');
 							if (chrome.runtime.lastError) _log(chrome.runtime.lastError.message, 'crimson');
 						});;
