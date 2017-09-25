@@ -9,7 +9,7 @@
 
     "background": {
 		"scripts": [
-			"/my_log.js",
+			"/scripts/my_log.js",
 			"/background.js"
 		] 
 	},
