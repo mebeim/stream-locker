@@ -95,7 +95,7 @@ function watchPopupWindow(window) {
 			}
 		}
 
-		// Add the ID to windowWatchlist to check using blockPopupWindows.
+		// Add the ID to windowWatchlist to check using blockPopupWindow.
 		windowWatchlist.push(window.id);
 		_log('Added window to watchlist (currently watching ' + windowWatchlist.length + ' windows) [window #' + window.id + ']');
 	});
