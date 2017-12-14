@@ -14,10 +14,42 @@
 		] 
 	},
 	
+	"content_scripts": [
+		{
+			"matches": [
+				"*://openload.co/*",
+				"*://oload.tv/*",
+				"*://speedvideo.net/*",
+				"*://streamin.to/*",
+				"*://suspents.info/*",
+				"*://turbovid.me/*",
+				"*://www.vidgg.to/*",
+				"*://wstream.video/*",
+				"*://wstream.video/*",
+				"*://vidabc.com/*",
+				"*://vidtome.co/*",
+				"*://vidto.me/*",
+				"*://thevideo.me/*",
+				"*://www.altadefinizione01.eu/*",
+				"*://www.fastvideo.me/*",
+				"*://www.flashx.to/*",
+				"*://www.flashx.tv/*",
+				"*://www.nowvideo.ec/*",
+				"*://www.nowvideo.li/*",
+				"*://www.rapidvideo.com/*",
+				"*://www.rapidvideo.cool/*",
+				"*://www.rapidvideo.org/*",
+			],
+			
+			"js": ["/scripts/popup_blocker.js"],
+			"run_at": "document_start",
+			"all_frames": true
+		}
+	],
+	
 	"permissions": [
 		"tabs",
 		"webRequest",
-		"webRequestBlocking",
 		"<all_urls>"
 	],
 	
@@ -27,9 +59,5 @@
 		"38": "images/icons/38.png",
 		"64": "images/icons/64.png",
 		"128": "images/icons/128.png"
-	},
-	
-	"web_accessible_resources": [
-		"/scripts/block_popups.js"
-	]
+	}
 }
