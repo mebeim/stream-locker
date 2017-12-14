@@ -12,6 +12,16 @@
  * General Public License for more details.
  */
 
+function extractHostname(url) {
+	var partial = url.substring(url.indexOf('://') + 3),
+        colon = partial.indexOf(':'),
+        slash = partial.indexOf('/'),
+        len = Math.max(colon, slash);
+
+	if (len == -1) len = partial.length;
+	return partial.substr(0, len);
+}
+
 function getBlacklist() {
 	return new Promise((resolve, reject) => {
 		var xhr = new XMLHttpRequest();
@@ -19,10 +29,11 @@ function getBlacklist() {
 		xhr.addEventListener('readystatechange', function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status == 200) {
-					blacklist = xhr.responseText.split('\n');
+					blacklist = new Set(xhr.responseText.split('\n'));
 					resolve();
 				} else {
 					_log('Unable to retrieve blacklist! XHR response code: ' + xhr.status + '.', 'crimson');
+					reject();
 				}
 			}
 		});
@@ -53,78 +64,86 @@ function startPlayer(media) {
 	_log('Launched player (Content-Type: ' + media.contentType + ') [tab #' + media.tab.id + ' (' + (media.tab.index+1) + '): ' + media.tab.url + ']', 'limegreen');
 }
 
-function handleRequests(details) {
-	if (~details.tabId) {
+function checkRequest(details) {
+	var contentType = details.responseHeaders.find(h => h.name.toLowerCase() == 'content-type');
+	
+	if (contentType) {
 		chrome.tabs.get(details.tabId, function(tab) {
-			for (address of blacklist) {
-				if (~tab.url.indexOf(address) && details.responseHeaders) {
-					for (header of details.responseHeaders) {
-						if (header.name == 'Content-Type' && contentTypePattern.test(header.value)) {
-							let media = {
-								url: details.url,
-								contentType: header.value,
-								pageTitle: tab.title,
-								tab: tab
-							};
+			let media = {
+				url: details.url,
+				contentType: contentType.value,
+				pageTitle: tab.title,
+				tab: tab
+			};
 
-							if (goodContentTypePattern.test(media.contentType)) {
-								// Supported Content-Type, launch the player and cancel request.
-								startPlayer(media);
-								return {cancel: true};
-							}
-
-							if (badContentTypePattern.test(media.contentType)) {
-								// Unsupported Content-Type.
-								_log("Can't launch player: bad Content-Type: " + media.contentType + ' [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
-								return;
-							}
-							
-							// Unknown Content-Type, needs "manual" check.
-							checkMedia(media).then(startPlayer, err => {
-								_log("Can't lauhcn player: media cannot be played (Content-Type: " + media.contentType + ') [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
-							});
-							
-							return;
-						}
-					}
-
-					break;
-				}
+			if (goodContentTypePattern.test(contentType.value)) {
+				// Supported Content-Type, launch the player and cancel request.
+				startPlayer(media);
+				return {cancel: true};
 			}
+
+			if (badContentTypePattern.test(contentType.value)) {
+				// Unsupported Content-Type.
+				_log("Can't launch player: bad Content-Type: " + contentType.value + ' [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
+				return;
+			}
+			
+			// Unknown Content-Type, needs "manual" check.
+			checkMedia(media).then(startPlayer, err => {
+				_log("Can't lauhcn player: media cannot be played (Content-Type: " + contentType.value + ') [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
+			});
+			
+			return;
 		});
 	}
 }
 
-function injectPopupBlocker(tabID) {
-	var code = 'var s = document.createElement("script");                    \
-	            s.id = "stream-locker-block-popups";                         \
-	            s.src = chrome.extension.getURL("/scripts/block_popups.js"); \
-	            document.head.appendChild(s);';
-	
-	chrome.tabs.executeScript(tabID, {code: code, allFrames: true});
+function checkTab(tabId, info, tab) {
+	if (blacklist.has(extractHostname(tab.url))) {
+		if (!watchedTabs.has(tabId)) {
+			_log('Tab #' + tabId + ' (' + (tab.index+1) + ') loaded blacklisted URL: ' + tab.url);
+			
+			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
+				tabId: tabId,
+				urls: WEBREQUEST_FILTER_URLS,
+				types: WEBREQUEST_FILTER_TYPES
+			}, ['responseHeaders']);
+			
+			watchedTabs.add(tabId);
+			_log('Tab #' + tabId + ' added to watchlist');
+		}
+	} else {
+		if (watchedTabs.has(tabId)) {
+			chrome.webRequest.onHeadersReceived.removeListener(checkRequest, {
+				tabId: tabId,
+				urls: WEBREQUEST_FILTER_URLS, 
+				types: WEBREQUEST_FILTER_TYPES
+			}, ['responseHeaders']);
+			
+			watchedTabs.delete(tabId);
+			_log('Tab #' + tabId + ' removed from watchlist');
+		}
+	}
+}
+
+function closePopupTab(tab) {
+	if (watchedTabs.has(tab.openerTabId))
+		chrome.tabs.remove(tab.id);
 }
 
 function start() {
-	chrome.webRequest.onHeadersReceived.addListener(handleRequests, {
-		urls: [ // Is checking extensions the right way?
-			'*://*/*.mkv*',
-			'*://*/*.mp4*',
-			'*://*/*.ogv*',
-			'*://*/*.webm*'
-		],
-		types: [
-			'object',
-			'media', 
-			'xmlhttprequest', // Is this needed?
-			'other'
-		]
-	}, ['blocking', 'responseHeaders']);
+	chrome.tabs.onCreated.addListener(closePopupTab);
+	chrome.tabs.onUpdated.addListener(checkTab);
+	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id));
 }
 
-var	contentTypePattern = /^(application\/octet\-stream|video\/.*)$/i,
+const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'], // Is checking extensions the right way?
+      WEBREQUEST_FILTER_TYPES =  ['object', 'media', 'xmlhttprequest', 'other']; // Is xhr needed?
+
+var	contentTypePattern     = /^(application\/octet\-stream|video\/.*)$/i,
     goodContentTypePattern = /^video\/(mp4|webm|ogg)$/i,
-    badContentTypePattern = /^video\/(x\-)?flv$/i,
-	windowWatchlist = [],
+    badContentTypePattern  = /^video\/(x\-)?flv$/i,
+	watchedTabs            = new Set(),
     blacklist;
 
 chrome.runtime.onInstalled.addListener(function() {
