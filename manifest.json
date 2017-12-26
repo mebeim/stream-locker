@@ -25,7 +25,6 @@
 				"*://turbovid.me/*",
 				"*://www.vidgg.to/*",
 				"*://wstream.video/*",
-				"*://wstream.video/*",
 				"*://vidabc.com/*",
 				"*://vidtome.co/*",
 				"*://vidto.me/*",
@@ -38,7 +37,7 @@
 				"*://www.nowvideo.li/*",
 				"*://www.rapidvideo.com/*",
 				"*://www.rapidvideo.cool/*",
-				"*://www.rapidvideo.org/*",
+				"*://www.rapidvideo.org/*"
 			],
 			
 			"js": ["/scripts/popup_blocker.js"],
