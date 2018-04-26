@@ -4,6 +4,11 @@ Stream Locker Changelog
 Versions
 --------
 
+### TBD
+
+ - Added keyboard shortcuts for volume up/down.
+ - Added some sites to blacklist.
+
 ### [0.0.4][v0.0.4] (2017-07-08)
 
 First public release.
