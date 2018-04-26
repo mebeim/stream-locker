@@ -14,14 +14,14 @@ To install Stream Locker **check the available [releases][2]**, which provide a 
 Player keyboard/mouse shortcuts
 -------------------------------
 
- - **Spacebar** or **mouse left click**: play/pause.
- - **`F`** or **mouse double left click**: toggle full screen.
- - **`+` (plus)** or **mouse scroll up**: volume +5%.
- - **`-` (dash)** or **mouse scroll down**: volume -5%.
- - **Right arrow**: skip forward 10 seconds.
- - **Left arrow**: skip backward 10 seconds.
- - **Up arrow**: skip forward 30 seconds.
- - **Down arrow**: skip backward 30 seconds.
+ - <kbd>space</kbd> or *mouse left click*: play/pause.
+ - <kbd>F</kbd> or *mouse double left click*: toggle full screen.
+ - <kbd>+</kbd> or *mouse scroll up*: volume +5%.
+ - <kbd>-</kbd> or *mouse scroll down*: volume -5%.
+ - <kbd>→</kbd>: skip forward 10 seconds.
+ - <kbd>←</kbd>: skip backward 10 seconds.
+ - <kbd>↑</kbd>: skip forward 30 seconds.
+ - <kbd>↓</kbd>: skip backward 30 seconds.
 
 
  [1]: https://github.com/mebeim/stream-locker/raw/master/images/icons/38.png
