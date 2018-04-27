@@ -40,7 +40,10 @@ var player		= document.getElementById('player'),
 	queryParams	= getQueryStringParameters(),
 	mouseHideTimeoutID;
 
-chrome.tabs.getCurrent(tab => chrome.pageAction.show(tab.id));
+chrome.tabs.getCurrent(tab => {
+	chrome.pageAction.show(tab.id);
+	chrome.pageAction.setTitle({tabId: tab.id, title: 'Stream Locker: playing...'});
+});
 
 document.title = queryParams.title;
 player.type = queryParams.contentType;

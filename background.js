@@ -59,9 +59,9 @@ function startPlayer(media) {
 		'src=' + encodeURIComponent(media.url) +
 		'&mime=' + media.contentType +
 		'&title=' + media.pageTitle
+	}, tab => {
+		_log(`Launched player (Content-Type: ${media.contentType}) [tab # ${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen');
 	});
-
-	_log(`Launched player (Content-Type: ${media.contentType}) [tab # ${media.tab.id} (${media.tab.index+1}): ${media.tab.url}]`, 'limegreen');
 }
 
 function checkRequest(details) {
@@ -113,6 +113,7 @@ function checkTab(tabId, info, tab) {
 			_log(`Tab # ${tabId} added to watchlist`);
 
 			chrome.pageAction.show(tabId);
+			chrome.pageAction.setTitle({tabId: tabId, title: 'Stream Locker: this site is blacklisted.'});
 		}
 	} else {
 		if (watchedTabs.has(tabId)) {
@@ -124,8 +125,6 @@ function checkTab(tabId, info, tab) {
 
 			watchedTabs.delete(tabId);
 			_log(`Tab # ${tabId} removed from watchlist`);
-
-			chrome.pageAction.hide(tabId);
 		}
 	}
 }
