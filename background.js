@@ -30,8 +30,6 @@ function loadBlacklist() {
 			if (xhr.readyState == 4) {
 				if (xhr.status == 200) {
 					blacklist = new Set(xhr.responseText.split('\n').filter(Boolean));
-					blacklistFilter = {url: []};
-					blacklist.forEach(d => blacklistFilter.url.push({hostEquals: d}));
 					resolve();
 				} else {
 					_log('Unable to retrieve blacklist! XHR response code: ' + xhr.status + '.', 'crimson');
@@ -62,13 +60,13 @@ function startPlayer(media) {
 		'&mime=' + media.contentType +
 		'&title=' + media.pageTitle
 	});
-	
+
 	_log('Launched player (Content-Type: ' + media.contentType + ') [tab #' + media.tab.id + ' (' + (media.tab.index+1) + '): ' + media.tab.url + ']', 'limegreen');
 }
 
 function checkRequest(details) {
 	var contentType = details.responseHeaders.find(h => h.name.toLowerCase() == 'content-type');
-	
+
 	if (contentType) {
 		chrome.tabs.get(details.tabId, function(tab) {
 			let media = {
@@ -89,12 +87,12 @@ function checkRequest(details) {
 				_log("Can't launch player: bad Content-Type: " + contentType.value + ' [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
 				return;
 			}
-			
+
 			// Unknown Content-Type, needs "manual" check.
 			checkMedia(media).then(startPlayer, err => {
 				_log("Can't lauhcn player: media cannot be played (Content-Type: " + contentType.value + ') [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
 			});
-			
+
 			return;
 		});
 	}
@@ -104,13 +102,13 @@ function checkTab(tabId, info, tab) {
 	if (blacklist.has(extractHostname(tab.url))) {
 		if (!watchedTabs.has(tabId)) {
 			_log('Tab #' + tabId + ' (' + (tab.index+1) + ') loaded blacklisted URL: ' + tab.url);
-			
+
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
 				tabId: tabId,
 				urls: WEBREQUEST_FILTER_URLS,
 				types: WEBREQUEST_FILTER_TYPES
 			}, ['responseHeaders']);
-			
+
 			watchedTabs.add(tabId);
 			_log('Tab #' + tabId + ' added to watchlist');
 		}
@@ -118,48 +116,35 @@ function checkTab(tabId, info, tab) {
 		if (watchedTabs.has(tabId)) {
 			chrome.webRequest.onHeadersReceived.removeListener(checkRequest, {
 				tabId: tabId,
-				urls: WEBREQUEST_FILTER_URLS, 
+				urls: WEBREQUEST_FILTER_URLS,
 				types: WEBREQUEST_FILTER_TYPES
 			}, ['responseHeaders']);
-			
+
 			watchedTabs.delete(tabId);
 			_log('Tab #' + tabId + ' removed from watchlist');
 		}
 	}
 }
 
-function closePopupTab(tab) {
-	if (watchedTabs.has(tab.openerTabId))
-		chrome.tabs.remove(tab.id);
-}
-
-function injectPopupBlocker(details) {
-	_log('Ingecting blocker: tab #' + details.tabId + ', frame #' + details.frameId + ', url: ' + details.url);
-	
-	chrome.tabs.executeScript(details.tabId, {
-		frameId        : details.frameId,
-		file           : '/scripts/popup_blocker.js',
-		runAt          : 'document_start',
-		allFrames      : true,
-		matchAboutBlank: true
-	});
+function listenMessages(request, sender, sendResponse) {
+	if (request === "is_blacklisted")
+		sendResponse(blacklist.has(extractHostname(sender.tab.url)));
 }
 
 function start() {
-	chrome.webNavigation.onCommitted.addListener(injectPopupBlocker, blacklistFilter);
-	chrome.tabs.onCreated.addListener(closePopupTab);
+	chrome.runtime.onMessage.addListener(listenMessages);
 	chrome.tabs.onUpdated.addListener(checkTab);
 	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id));
 }
 
 // Is checking extensions the right way? Is xhr needed?
-const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'], 
+const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'],
       WEBREQUEST_FILTER_TYPES =  ['object', 'media', 'xmlhttprequest', 'other'];
 
 var	contentTypePattern     = /^(application\/octet\-stream|video\/.*)$/i,
     goodContentTypePattern = /^video\/(mp4|webm|ogg)$/i,
     badContentTypePattern  = /^video\/(x\-)?flv$/i,
     watchedTabs            = new Set(),
-    blacklist, blacklistFilter;
+    blacklist;
 
 loadBlacklist().then(start);
