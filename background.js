@@ -111,6 +111,8 @@ function checkTab(tabId, info, tab) {
 
 			watchedTabs.add(tabId);
 			_log('Tab #' + tabId + ' added to watchlist');
+
+			chrome.pageAction.show(tabId);
 		}
 	} else {
 		if (watchedTabs.has(tabId)) {
@@ -122,6 +124,8 @@ function checkTab(tabId, info, tab) {
 
 			watchedTabs.delete(tabId);
 			_log('Tab #' + tabId + ' removed from watchlist');
+
+			chrome.pageAction.hide(tabId);
 		}
 	}
 }
