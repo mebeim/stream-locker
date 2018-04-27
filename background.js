@@ -32,7 +32,7 @@ function loadBlacklist() {
 					blacklist = new Set(xhr.responseText.split('\n').filter(Boolean));
 					resolve();
 				} else {
-					_log('Unable to retrieve blacklist! XHR response code: ' + xhr.status + '.', 'crimson');
+					_log(`Unable to retrieve blacklist! XHR response code: ${xhr.status}.`, 'crimson');
 					reject();
 				}
 			}
@@ -56,12 +56,12 @@ function checkMedia(media) {
 function startPlayer(media) {
 	chrome.tabs.update(media.tab.id, {
 		url: '/player/player.html?' +
-		'&src=' + encodeURIComponent(media.url) +
+		'src=' + encodeURIComponent(media.url) +
 		'&mime=' + media.contentType +
 		'&title=' + media.pageTitle
 	});
 
-	_log('Launched player (Content-Type: ' + media.contentType + ') [tab #' + media.tab.id + ' (' + (media.tab.index+1) + '): ' + media.tab.url + ']', 'limegreen');
+	_log(`Launched player (Content-Type: ${media.contentType}) [tab # ${media.tab.id} (${media.tab.index+1}): ${media.tab.url}]`, 'limegreen');
 }
 
 function checkRequest(details) {
@@ -84,13 +84,13 @@ function checkRequest(details) {
 
 			if (badContentTypePattern.test(contentType.value)) {
 				// Unsupported Content-Type.
-				_log("Can't launch player: bad Content-Type: " + contentType.value + ' [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
+				_log(`Can't launch player: bad Content-Type: ${contentType.value} [tab # ${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson');
 				return;
 			}
 
 			// Unknown Content-Type, needs "manual" check.
 			checkMedia(media).then(startPlayer, err => {
-				_log("Can't lauhcn player: media cannot be played (Content-Type: " + contentType.value + ') [tab #' + tab.id + ' (' + (tab.index+1) + '): ' + tab.url + ']', 'crimson');
+				_log(`Can't lauhcn player: media cannot be played (Content-Type: ${contentType.value}) [tab # ${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson');
 			});
 
 			return;
@@ -101,7 +101,7 @@ function checkRequest(details) {
 function checkTab(tabId, info, tab) {
 	if (blacklist.has(extractHostname(tab.url))) {
 		if (!watchedTabs.has(tabId)) {
-			_log('Tab #' + tabId + ' (' + (tab.index+1) + ') loaded blacklisted URL: ' + tab.url);
+			_log(`Tab # ${tabId} (${tab.index+1}) loaded blacklisted URL: ${tab.url}`);
 
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
 				tabId: tabId,
@@ -110,7 +110,7 @@ function checkTab(tabId, info, tab) {
 			}, ['responseHeaders']);
 
 			watchedTabs.add(tabId);
-			_log('Tab #' + tabId + ' added to watchlist');
+			_log(`Tab # ${tabId} added to watchlist`);
 
 			chrome.pageAction.show(tabId);
 		}
@@ -123,7 +123,7 @@ function checkTab(tabId, info, tab) {
 			}, ['responseHeaders']);
 
 			watchedTabs.delete(tabId);
-			_log('Tab #' + tabId + ' removed from watchlist');
+			_log(`Tab # ${tabId} removed from watchlist`);
 
 			chrome.pageAction.hide(tabId);
 		}
