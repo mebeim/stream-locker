@@ -4,8 +4,12 @@ Stream Locker Changelog
 Versions
 --------
 
-### TBD
+### [0.0.5][v0.0.5] (2018-04-28)
 
+Moving towards something usable!
+
+ - Re-engineered popup-blocking logic.
+ - Added a `pageAction` to let the user know when and where the extension is working.
  - Added keyboard shortcuts for volume up/down.
  - Added some sites to blacklist.
 
@@ -36,4 +40,8 @@ First public release.
 
  - First alpha version!
 
+------------------------------------------------------------------------------------------
+*Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
+
+ [v0.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.5
  [v0.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.4
