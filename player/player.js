@@ -1,14 +1,14 @@
 /**
  * This file is part of the Stream Locker Chrome extension.
  * Copyright (c) 2017 Marco Bonelli.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  */
 
@@ -36,11 +36,12 @@ function getQueryStringParameters() {
 	return res;
 }
 
- 
 var player		= document.getElementById('player'),
 	queryParams	= getQueryStringParameters(),
 	mouseHideTimeoutID;
-	
+
+chrome.tabs.getCurrent(tab => chrome.pageAction.show(tab.id));
+
 document.title = queryParams.title;
 player.type = queryParams.contentType;
 player.src = queryParams.src;
