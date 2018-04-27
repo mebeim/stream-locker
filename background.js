@@ -14,22 +14,24 @@
 
 function extractHostname(url) {
 	var partial = url.substring(url.indexOf('://') + 3),
-        colon = partial.indexOf(':'),
-        slash = partial.indexOf('/'),
-        len = Math.max(colon, slash);
+	    colon = partial.indexOf(':'),
+	    slash = partial.indexOf('/'),
+	    len = Math.max(colon, slash);
 
 	if (len == -1) len = partial.length;
 	return partial.substr(0, len);
 }
 
-function getBlacklist() {
+function loadBlacklist() {
 	return new Promise((resolve, reject) => {
 		var xhr = new XMLHttpRequest();
 
 		xhr.addEventListener('readystatechange', function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status == 200) {
-					blacklist = new Set(xhr.responseText.split('\n'));
+					blacklist = new Set(xhr.responseText.split('\n').filter(Boolean));
+					blacklistFilter = {url: []};
+					blacklist.forEach(d => blacklistFilter.url.push({hostEquals: d}));
 					resolve();
 				} else {
 					_log('Unable to retrieve blacklist! XHR response code: ' + xhr.status + '.', 'crimson');
@@ -77,7 +79,7 @@ function checkRequest(details) {
 			};
 
 			if (goodContentTypePattern.test(contentType.value)) {
-				// Supported Content-Type, launch the player and cancel request.
+				// Supported Content-Type, launch the player and cancel the request.
 				startPlayer(media);
 				return {cancel: true};
 			}
@@ -131,24 +133,33 @@ function closePopupTab(tab) {
 		chrome.tabs.remove(tab.id);
 }
 
+function injectPopupBlocker(details) {
+	_log('Ingecting blocker: tab #' + details.tabId + ', frame #' + details.frameId + ', url: ' + details.url);
+	
+	chrome.tabs.executeScript(details.tabId, {
+		frameId        : details.frameId,
+		file           : '/scripts/popup_blocker.js',
+		runAt          : 'document_start',
+		allFrames      : true,
+		matchAboutBlank: true
+	});
+}
+
 function start() {
+	chrome.webNavigation.onCommitted.addListener(injectPopupBlocker, blacklistFilter);
 	chrome.tabs.onCreated.addListener(closePopupTab);
 	chrome.tabs.onUpdated.addListener(checkTab);
 	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id));
 }
 
-const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'], // Is checking extensions the right way?
-      WEBREQUEST_FILTER_TYPES =  ['object', 'media', 'xmlhttprequest', 'other']; // Is xhr needed?
+// Is checking extensions the right way? Is xhr needed?
+const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'], 
+      WEBREQUEST_FILTER_TYPES =  ['object', 'media', 'xmlhttprequest', 'other'];
 
 var	contentTypePattern     = /^(application\/octet\-stream|video\/.*)$/i,
     goodContentTypePattern = /^video\/(mp4|webm|ogg)$/i,
     badContentTypePattern  = /^video\/(x\-)?flv$/i,
-	watchedTabs            = new Set(),
-    blacklist;
+    watchedTabs            = new Set(),
+    blacklist, blacklistFilter;
 
-chrome.runtime.onInstalled.addListener(function() {
-	//alert('Extension under alpha developement.\n\nAvailable options for nerds:\nlocalStorage.log != "" ⇒ enable logging (disabled by default)\nlocalStorage.closeBlankPopups != "" ⇒ block blank popup windows (enabled by default)');
-	//localStorage.closeBlankPopups = 1;
-});
-
-getBlacklist().then(start);
+loadBlacklist().then(start);
