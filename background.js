@@ -25,12 +25,16 @@ function extractHostname(url) {
 	return partial.substr(0, len)
 }
 
-function loadBlacklist() {
+function loadBlacklist(blacklist) {
 	return new Promise((resolve, reject) => {
 		fetch('/blacklist.txt').then(resp => {
 			if (resp.ok && resp.status == 200) {
 				resp.text().then(txt => {
-					blacklist = new Set(txt.split('\n').map(l => l.trim()).filter(Boolean))
+					txt.split('\n')
+					   .map(Function.prototype.call.bind(String.prototype.trim))
+					   .filter(Boolean)
+					   .forEach(blacklist.add.bind(blacklist))
+
 					resolve()
 				})
 			} else {
@@ -144,12 +148,11 @@ function start() {
 
 // Is checking extensions the right way? Is xhr needed?
 const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'],
-      WEBREQUEST_FILTER_TYPES = ['object', 'media', 'xmlhttprequest', 'other']
+      WEBREQUEST_FILTER_TYPES = ['object', 'media', 'xmlhttprequest', 'other'],
+      contentTypePattern      = /^(application\/octet\-stream|video\/.*)$/i,
+      goodContentTypePattern  = /^video\/(mp4|webm|ogg)$/i,
+      badContentTypePattern   = /^video\/(x\-)?flv$/i,
+      watchedTabs             = new Set(),
+      blacklist               = new Set()
 
-let	contentTypePattern     = /^(application\/octet\-stream|video\/.*)$/i,
-    goodContentTypePattern = /^video\/(mp4|webm|ogg)$/i,
-    badContentTypePattern  = /^video\/(x\-)?flv$/i,
-    watchedTabs            = new Set(),
-    blacklist
-
-loadBlacklist().then(start)
+loadBlacklist(blacklist).then(start)
