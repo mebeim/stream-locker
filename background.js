@@ -60,6 +60,15 @@ function startPlayer(media) {
 	});
 }
 
+/**
+ * Finally solved!
+ * https://stackoverflow.com/questions/46407042
+ */
+function blockPopups(details) {
+	if (watchedTabs.has(details.sourceTabId))
+		chrome.tabs.remove(details.tabId);
+}
+
 function checkRequest(details) {
 	var contentType = details.responseHeaders.find(h => h.name.toLowerCase() == 'content-type');
 
@@ -128,6 +137,7 @@ function checkTab(tabId, info, tab) {
 function start() {
 	chrome.tabs.onUpdated.addListener(checkTab);
 	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id));
+	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups);
 }
 
 // Is checking extensions the right way? Is xhr needed?
