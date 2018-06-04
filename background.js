@@ -125,13 +125,7 @@ function checkTab(tabId, info, tab) {
 	}
 }
 
-function listenMessages(request, sender, sendResponse) {
-	if (request === "is_blacklisted")
-		sendResponse(blacklist.has(extractHostname(sender.tab.url)));
-}
-
 function start() {
-	chrome.runtime.onMessage.addListener(listenMessages);
 	chrome.tabs.onUpdated.addListener(checkTab);
 	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id));
 }
