@@ -56,7 +56,7 @@ function startPlayer(media) {
 		'&mime=' + media.contentType +
 		'&title=' + media.pageTitle
 	}, tab => {
-		_log(`Launched player (Content-Type: ${media.contentType}) [tab # ${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen');
+		_log(`Launched player (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen');
 	});
 }
 
@@ -80,13 +80,13 @@ function checkRequest(details) {
 
 			if (badContentTypePattern.test(contentType.value)) {
 				// Unsupported Content-Type.
-				_log(`Can't launch player: bad Content-Type: ${contentType.value} [tab # ${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson');
+				_log(`Can't launch player: bad Content-Type: ${contentType.value} [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson');
 				return;
 			}
 
 			// Unknown Content-Type, needs "manual" check.
 			checkMedia(media).then(startPlayer, err => {
-				_log(`Can't lauhcn player: media cannot be played (Content-Type: ${contentType.value}) [tab # ${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson');
+				_log(`Can't lauhcn player: media cannot be played (Content-Type: ${contentType.value}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson');
 			});
 
 			return;
@@ -97,7 +97,7 @@ function checkRequest(details) {
 function checkTab(tabId, info, tab) {
 	if (blacklist.has(extractHostname(tab.url))) {
 		if (!watchedTabs.has(tabId)) {
-			_log(`Tab # ${tabId} (${tab.index+1}) loaded blacklisted URL: ${tab.url}`);
+			_log(`tab #${tabId} (${tab.index+1}) loaded blacklisted URL: ${tab.url}`);
 
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
 				tabId: tabId,
@@ -106,7 +106,7 @@ function checkTab(tabId, info, tab) {
 			}, ['responseHeaders']);
 
 			watchedTabs.add(tabId);
-			_log(`Tab # ${tabId} added to watchlist`);
+			_log(`tab #${tabId} added to watchlist`);
 
 			chrome.pageAction.show(tabId);
 			chrome.pageAction.setTitle({tabId: tabId, title: 'Stream Locker: this site is blacklisted.'});
@@ -120,7 +120,7 @@ function checkTab(tabId, info, tab) {
 			}, ['responseHeaders']);
 
 			watchedTabs.delete(tabId);
-			_log(`Tab # ${tabId} removed from watchlist`);
+			_log(`tab #${tabId} removed from watchlist`);
 		}
 	}
 }
