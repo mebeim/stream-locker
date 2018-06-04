@@ -18,7 +18,8 @@ function extractHostname(url) {
 	    slash = partial.indexOf('/'),
 	    len = Math.max(colon, slash);
 
-	if (len == -1) len = partial.length;
+	if (len == -1)
+		return partial;
 	return partial.substr(0, len);
 }
 
