@@ -25,22 +25,17 @@ function extractHostname(url) {
 
 function loadBlacklist() {
 	return new Promise((resolve, reject) => {
-		var xhr = new XMLHttpRequest();
-
-		xhr.addEventListener('readystatechange', function() {
-			if (xhr.readyState == 4) {
-				if (xhr.status == 200) {
-					blacklist = new Set(xhr.responseText.split('\n').filter(Boolean));
+		fetch('/blacklist.txt').then(resp => {
+			if (resp.ok && resp.status == 200) {
+				resp.text().then(txt => {
+					blacklist = new Set(txt.split('\n').map(l => l.trim()).filter(Boolean));
 					resolve();
-				} else {
-					_log(`Unable to retrieve blacklist! XHR response code: ${xhr.status}.`, 'crimson');
-					reject();
-				}
+				})
+			} else {
+				_log(`Unable to retrieve blacklist! Response status code: ${resp.status}.`, 'crimson');
+				reject();
 			}
-		});
-
-		xhr.open('GET', 'blacklist.txt', true);
-		xhr.send();
+		}).catch(reject);
 	});
 }
 
