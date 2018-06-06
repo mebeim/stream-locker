@@ -1,15 +1,24 @@
 ![logo][1] Stream Locker
 ========================
 
-This extension blocks annoying popups on streaming sites and intercepts media webrequests to capture compatible video sources and display them in the lightweight default Google Chrome's HTML5 player. The `blacklist.txt` file can be easily modified to add/remove sites without the need to reinstall or update the extension. I coded this extension just for fun and I'm using it regularly, but I'm currently not interested in publishing it to the Chrome Web Store.
+This extension blocks annoying popups on streaming sites and intercepts media webrequests to capture compatible video sources and display them in the lightweight default HTML5 player of your browser. As of now, sites are blacklisted using the `blacklist.txt` file, which can be easily manually modified to add/remove sites without the need to reinstall or update the extension. In the future, the blacklist will be fully manageable through the extension's options. I coded this extension just for fun and I'm using it regularly, but I'm currently not interested in publishing it.
 
 Installation
 ------------
 
-To install Stream Locker **check the available [releases][2]**, which provide a packaged `.crx` file which can be dragged and dropped int your `chrome://extensions` page to manually install the extension. You can also install Stream Locker from the same page by checking the checkbox "develoepr mode", then choosing "Load unpacked extension" and selecting the folder containing the extension source.
+To install Stream Locker **check the available [releases][2]**.
 
-**Please note** taht developer mode extensions (not installed from the store, like this one) will cause Chrome to raise a warning at startup recommending to disable them. A workaround to hide this annoying message can be found [here][3].
+### Chrome
 
+Navigate to `chrome://extensions` and drag and drop the packaged `.crx` file in the page. You can also enable "developer mode" and click on "Load unpacked extension" selecting the folder containing the extension source.
+
+**Please note** taht developer mode extensions (not installed from the store, like this one) will cause Chrome to raise a warning at startup recommending to disable them. A workaround to hide this annoying message (at least on Windows) can be found [here][3].
+
+### Firefox
+
+Navigate to `about:debugging`, and click on "Load Temporary Add-on". Next, either select the `.zip` file or the `manifest.json` in the folder containing the extension source.
+
+**Please note** that since this extension is not already published nor signed, it doesn't have an add-on ID, and cannot be installed permanently. I'm planning on doing it in the near future.
 
 Player keyboard/mouse shortcuts
 -------------------------------
@@ -22,7 +31,7 @@ Player keyboard/mouse shortcuts
  - <kbd>←</kbd>: skip backward 10 seconds.
  - <kbd>↑</kbd>: skip forward 30 seconds.
  - <kbd>↓</kbd>: skip backward 30 seconds.
- 
+
 ----------------------------------------------------------------------------------------
 
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
