@@ -119,9 +119,9 @@ player.addEventListener('click', e => {
 
 player.addEventListener('dblclick', e => toggleFullScreen(player))
 
-player.addEventListener('mousewheel', e => {
-	if (e.wheelDelta) {
-		player.volume = (player.volume + Math.sign(e.wheelDelta) * 0.05).limit(0, 1)
+player.addEventListener('wheel', e => {
+	if (e.deltaY) {
+		player.volume = (player.volume - Math.sign(e.deltaY) * 0.05).limit(0, 1)
 	}
 })
 
