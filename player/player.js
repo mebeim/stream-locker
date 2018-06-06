@@ -38,6 +38,26 @@ function getQueryStringParameters() {
 	return res
 }
 
+function toggleFullScreen(el) {
+	// Chrome
+	if (document.webkitIsFullScreen !== undefined) {
+		if (doucment.webkitIsFullScreen)
+			document.webkitExitFullscreen()
+		else
+			el.webkitRequestFullScreen()
+
+		return
+	}
+
+	// Firefox
+	if (document.mozFullScreen !== undefined) {
+		if (document.mozFullScreen)
+			document.mozCancelFullScreen()
+		else
+			el.mozRequestFullScreen()
+	}
+}
+
 var player		= document.getElementById('player'),
 	queryParams	= getQueryStringParameters(),
 	mouseHideTimeoutID
@@ -59,8 +79,7 @@ document.documentElement.addEventListener('keypress', e => {
 			else player.pause()
 			break
 		case "KeyF":
-			if (document.webkitIsFullScreen) document.webkitExitFullscreen()
-			else player.webkitRequestFullScreen()
+			toggleFullScreen(player)
 			break
 	}
 })
@@ -98,13 +117,7 @@ player.addEventListener('click', e => {
 	else player.pause()
 })
 
-player.addEventListener('dblclick', e => {
-	if (document.webkitIsFullScreen) {
-		document.webkitExitFullscreen()
-	} else {
-		player.webkitRequestFullScreen()
-	}
-})
+player.addEventListener('dblclick', e => toggleFullScreen(player))
 
 player.addEventListener('mousewheel', e => {
 	if (e.wheelDelta) {
