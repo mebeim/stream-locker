@@ -17,9 +17,9 @@
 var LOG_PROMPT = '>>>'
 
 function _getTimestamp() {
-	var d = new Date()
-		d = [d.getHours(), d.getMinutes(), d.getSeconds()],
-		d = `${d[0] > 9 ? d[0] : '0' + d[0]}:${d[1] > 9 ? d[1] : '0' + d[1]}:${d[2] > 9 ? d[2] : '0' + d[2]}`
+	let d = new Date()
+	d = [d.getHours(), d.getMinutes(), d.getSeconds()],
+	d = `${d[0] > 9 ? d[0] : '0' + d[0]}:${d[1] > 9 ? d[1] : '0' + d[1]}:${d[2] > 9 ? d[2] : '0' + d[2]}`
 	return d
 }
 
@@ -31,29 +31,29 @@ window.onerror = function _log_err(desc, page, line, chr) {
 }
 
 function _log() {
-	var d
+	let d, color, stuff, what
 
 	if (localStorage.log) {
 		d = _getTimestamp()
 
 		switch (arguments.length) {
 			case 3:
-				var color = arguments[2],
-				    stuff = arguments[1],
-				    what = arguments[0]
+				color = arguments[2],
+				stuff = arguments[1],
+				what = arguments[0]
 				break
 
 			case 2:
 				if (typeof(arguments[1]) != 'string')
-					var stuff = arguments[1]
+					stuff = arguments[1]
 				else
-					var color = arguments[1]
+					color = arguments[1]
 
 				what = arguments[0]
 				break
 
 			case 1:
-				var what = arguments[0]
+				what = arguments[0]
 				break
 
 			default:
