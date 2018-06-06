@@ -4,6 +4,20 @@ Stream Locker Changelog
 Versions
 --------
 
+### [0.1.0][v0.1.0] (2018-06-06)
+
+Welcome to Beta.
+
+ - Mozilla Firefox support (though still not permanent install).
+ - Finally implemented a reliable solution for pupup detection and blocking.
+ - Code style reformat to ES6.
+ - Added some sites to blacklist.
+
+Known issues:
+
+ - Installing on Firefox is still not as easy as in Chrome. The extension doesn't have an ID and is not signed yet so the only option is to manually install it as temporary add-on from `about:debugging`. Sorry about that, still getting the hang of it.
+ - On Firefox, the <kbd>space</kbd> key doesn't work for playing/pausing. I have no clue why, since the event is correctly detected and the `.play()` method is correctly called, but whatever, I'll figure it out in some next version.
+
 ### [0.0.5][v0.0.5] (2018-04-28)
 
 Moving towards something usable!
@@ -43,5 +57,6 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v0.1.0]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.0
  [v0.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.5
  [v0.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.4
