@@ -6,7 +6,6 @@
 	"homepage_url": "https://github.com/mebeim/stream-locker",
     "version": "0.1.0",
 	"author": "Marco Bonelli",
-	"minimum_chrome_version": "58.0.3029.81",
 
     "background": {
 		"scripts": [

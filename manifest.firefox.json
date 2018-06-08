@@ -1,0 +1,12 @@
+{
+	"developer": {
+		"name": "Marco Bonelli",
+		"url": "https://github.com/mebeim"
+	},
+
+	"applications": {
+		"gecko": {
+			"id": "stream-locker@mebeim"
+		}
+	}
+}
