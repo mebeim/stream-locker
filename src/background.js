@@ -18,7 +18,7 @@ function extractHostname(url) {
 	let partial = url.substring(url.indexOf('://') + 3),
 	    colon = partial.indexOf(':'),
 	    slash = partial.indexOf('/'),
-		len = Math.max(colon, slash)
+	    len = Math.max(colon, slash)
 
 	if (len == -1)
 		return partial
