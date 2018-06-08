@@ -27,7 +27,7 @@ function extractHostname(url) {
 
 function loadBlacklist(blacklist) {
 	return new Promise((resolve, reject) => {
-		fetch('/blacklist.txt').then(resp => {
+		fetch('/resources/txt/blacklist.txt').then(resp => {
 			if (resp.ok && resp.status == 200) {
 				resp.text().then(txt => {
 					txt.split('\n')
@@ -57,7 +57,7 @@ function checkMedia(media) {
 
 function startPlayer(media) {
 	chrome.tabs.update(media.tab.id, {
-		url: '/player/player.html?' +
+		url: '/src/player/player.html?' +
 		'src=' + encodeURIComponent(media.url) +
 		'&mime=' + media.contentType +
 		'&title=' + media.pageTitle

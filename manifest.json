@@ -10,8 +10,8 @@
 
     "background": {
 		"scripts": [
-			"/scripts/my_log.js",
-			"/background.js"
+			"src/scripts/my_log.js",
+			"src/background.js"
 		]
 	},
 
@@ -23,11 +23,11 @@
 	],
 
 	"icons": {
-		"16": "images/icons/16.png",
-		"19": "images/icons/19.png",
-		"38": "images/icons/38.png",
-		"64": "images/icons/64.png",
-		"128": "images/icons/128.png"
+		"16": "resources/images/icons/16.png",
+		"19": "resources/images/icons/19.png",
+		"38": "resources/images/icons/38.png",
+		"64": "resources/images/icons/64.png",
+		"128": "resources/images/icons/128.png"
 	},
 
 	"page_action": {
