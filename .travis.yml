@@ -13,7 +13,7 @@ install:
 
 script:
   - export GH_RELEASE_BRANCH='master' GH_RELEASE_BASENAME='Stream Locker'
-  - ./build.py --release "$STREAM_LOCKER_TARGET"
+  - ./build.py --release --deploy "$STREAM_LOCKER_TARGET"
 
 notifications:
   email: false
