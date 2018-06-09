@@ -165,7 +165,11 @@ def deploy_firefox(build_dir):
 	bdir, sdir = get_browser_dirs(build_dir, 'firefox')
 	web_ext_sign(bdir, sdir, 'firefox')
 
-def deploy(target, build_dir):
+def deploy(target, build_dir, tag_name):
+	if tag_name[-4:] == '-pre':
+		say('[Deploy] Pre release, skipping deploy.\n')
+		return
+
 	if target not in TARGETS.keys():
 		say('[Deploy] Error: unknown target "{}", aborting.\n', target)
 		exit(1)
@@ -262,14 +266,13 @@ def get_changelog(fname):
 
 	return head + body
 
-def release_create(repo):
+def release_create(tag_name):
 	import github3
 
 	if not (ENV_GH_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_TRAVIS_REPO_SLUG):
 		say('[Release] Error: missing one or more needed environment variables, aborting.\n')
 		exit(1)
 
-	tag_name = get_head_tag_name(repo)
 	check_releasable(tag_name)
 
 	user, repo = ENV_TRAVIS_REPO_SLUG.split('/')
@@ -345,12 +348,13 @@ if __name__ == '__main__':
 	gh_release = None
 
 	build(git_repo, args.target, args.build_dir)
+	tag_name = get_head_tag_name(git_repo)
 
 	if args.release:
-		gh_release = release_create(git_repo)
+		gh_release = release_create(tag_name)
 
 	if args.deploy:
-		deploy(args.target, args.build_dir)
+		deploy(args.target, args.build_dir, tag_name)
 
 	clean_build_dir(args.build_dir)
 	rename_assets(args.build_dir)
