@@ -12,6 +12,15 @@ from datetime import datetime
 def say(s, *args):
 	sys.stderr.write(s.format(*args))
 
+def get_args():
+	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+	parser.add_argument('-r', '--release', action='store_true', help='create GitHub release')
+	parser.add_argument('-d', '--deploy', action='store_true', help='deploy built target')
+	parser.add_argument('--build-dir', default='./build', metavar='PATH', help='build directory')
+	parser.add_argument('target', nargs='?', default='all', help='target to build, one of: ' + ', '.join(sorted(TARGETS)))
+
+	return parser.parse_args()
+
 def zip_add(z, path):
 	if os.path.isdir(path):
 		for root, _, files in os.walk(path):
@@ -36,24 +45,30 @@ def merge_json(a, b):
 
 	return json.dumps(ja, separators=(',', ':'))
 
-def build(repo, browsers, build_dir='build'):
+def build(repo, target, build_dir):
 	if not os.path.isdir(build_dir):
 		try:
 			os.mkdir(build_dir)
 		except:
-			say('[Build] Error: unable to create build directory "{}", aborting build.\n', build_dir)
+			say('[Build] Error: unable to create build directory "{}", aborting.\n', build_dir)
 			exit(1)
 
 	built    = []
 	tag_name = repo.git.describe('--tags')
+	browsers = TARGETS.get(target)
 
+	if browsers is None:
+		say('[Build] Error: unknown target "{}", aborting.\n', target)
+		exit(1)
+
+	say('[Build] Target: {}.\n', target)
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
 	for browser in browsers:
 		zip_fname      = os.path.join(build_dir, tag_name + '_' + browser + '.zip')
 		manifest_fname = 'manifest.' + browser + '.json'
 
-		say('[Build] Target browser: {}.\n', browser)
+		say('[Build] Browser: {}.\n', browser)
 		say('[Build] Creating ZIP: adding files...\r')
 
 		zip_file = zip_create(zip_fname)
@@ -119,7 +134,7 @@ def release(repo, assets=[]):
 		exit(0)
 
 	if not (ENV_TOKEN and ENV_RELEASE_BRANCH and ENV_RELEASE_BASENAME and ENV_TRAVIS_REPO_SLUG and ENV_TRAVIS_BRANCH):
-		say('[Release] Error: missing one or more needed environment variables, aborting release.\n')
+		say('[Release] Error: missing one or more needed environment variables, aborting.\n')
 		exit(1)
 
 	tag_name   = get_head_tag_name(repo)
@@ -161,6 +176,12 @@ def release(repo, assets=[]):
 
 	say('[Release] Done.\n')
 
+def deploy():
+	# TODO
+	pass
+
+###############################################################
+
 TARGETS = {
 	'chrome': ['chrome'],
 	'firefox': ['firefox'],
@@ -168,9 +189,13 @@ TARGETS = {
 }
 
 if __name__ == '__main__':
+	args     = get_args()
 	git_repo = git.Repo()
 
-	assets = build(git_repo, TARGETS['all'])
+	assets = build(git_repo, args.target, args.build_dir)
 
-	if 'release' in sys.argv[1:]:
+	if args.release:
 		release(git_repo, assets)
+
+	if args.deploy:
+		deploy()
