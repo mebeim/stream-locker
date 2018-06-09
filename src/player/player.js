@@ -75,7 +75,6 @@ player.volume = parseFloat(localStorage.volume) || 0.5
 document.documentElement.addEventListener('keypress', e => {
 	switch (e.code) {
 		case "Space":
-			// FIXME: Uhm... why doesn't this work on Firefox?
 			if (player.paused) player.play()
 			else player.pause()
 			break
