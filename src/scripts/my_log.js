@@ -14,7 +14,7 @@
 
 "use strict"
 
-var LOG_PROMPT = '>>>'
+const LOG_PROMPT = '>>>'
 
 function _getTimestamp() {
 	let d = new Date()
