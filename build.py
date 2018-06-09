@@ -13,7 +13,7 @@ def say(s, *args):
 
 def zip_add(z, path):
 	if os.path.isdir(path):
-		for root, dirs, files in os.walk(path):
+		for root, _, files in os.walk(path):
 			for file in files:
 				z.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
 	else:
@@ -66,7 +66,7 @@ def build(repo, build_dir='build'):
 
 	say('[Build] Done.\n')
 
-	return [zip_fname]
+	return [(zip_fname, 'application/zip')]
 
 def get_head_tag_name(repo):
 	tag_name = repo.git.describe('--tags')
@@ -97,7 +97,7 @@ def get_changelog(fname):
 
 	return head + body
 
-def release(repo, assets_fnames=[]):
+def release(repo, assets=[]):
 	import github3
 
 	ENV_TOKEN            = os.getenv('GH_OAUTH_TOKEN')
@@ -106,6 +106,11 @@ def release(repo, assets_fnames=[]):
 
 	ENV_TRAVIS_REPO_SLUG = os.getenv('TRAVIS_REPO_SLUG')
 	ENV_TRAVIS_BRANCH    = os.getenv('TRAVIS_BRANCH')
+	ENV_TRAVIS_PR        = os.getenv('TRAVIS_PULL_REQUEST')
+
+	if ENV_TRAVIS_PR == '1':
+		say('[Release] Skipping release: pull requests.')
+		exit(0)
 
 	if not (ENV_TOKEN and ENV_RELEASE_BRANCH and ENV_RELEASE_BASENAME and ENV_TRAVIS_REPO_SLUG and ENV_TRAVIS_BRANCH):
 		say('[Release] Error: missing one or more needed environment variables, aborting release.\n')
@@ -114,11 +119,11 @@ def release(repo, assets_fnames=[]):
 	tag_name   = get_head_tag_name(repo)
 
 	if ENV_TRAVIS_BRANCH != ENV_RELEASE_BRANCH:
-		say('[Release] Current branch ({}) is not designed release branch ({}), skipping release phase.\n', ENV_TRAVIS_BRANCH, ENV_RELEASE_BRANCH)
+		say('[Release] Skipping release: current branch ({}) is not designed release branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_RELEASE_BRANCH)
 		exit(0)
 
 	if tag_name is None:
-		say('[Release] HEAD not pointing to a tag, skipping release phase.\n')
+		say('[Release] Skipping release: HEAD not pointing to a tag.\n')
 		exit(0)
 
 	user, repo = ENV_TRAVIS_REPO_SLUG.split('/')
@@ -143,9 +148,9 @@ def release(repo, assets_fnames=[]):
 		gh_release = gh_repo.create_release(tag_name, name=release_name, body=release_body, prerelease=release_is_pre)
 		say('[Release] Creating release... done.\n')
 
-	for fname in assets_fnames:
+	for fname, mimetype in assets:
 		say('[Release] Uploading {}...\r', fname)
-		gh_release.upload_asset('application/zip', os.path.split(fname)[-1], open(fname, 'rb').read())
+		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
 		say('[Release] Uploading {}... done.\n', fname)
 
 	say('[Release] Done.\n')
