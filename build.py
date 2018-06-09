@@ -3,14 +3,20 @@
 
 import os
 import sys
-import zipfile
 import json
 import argparse
+import shutil
+import subprocess
 import git
 from datetime import datetime
 
 def say(s, *args):
 	sys.stderr.write(s.format(*args))
+
+def say_pad(s, pad):
+	for l in s.split('\n'):
+		if l.strip():
+			sys.stderr.write(pad + ' ' + l + '\n')
 
 def get_args():
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -21,69 +27,104 @@ def get_args():
 
 	return parser.parse_args()
 
-def zip_add(z, path):
-	if os.path.isdir(path):
-		for root, _, files in os.walk(path):
-			for file in files:
-				z.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
-	else:
-		z.write(path)
+def merge_json(a, b, out):
+	with open(a, 'r') as f:
+		ja = json.load(f)
 
-def zip_create(fname):
-	z = zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED)
-	zip_add(z, 'src')
-	zip_add(z, 'resources')
-	zip_add(z, 'LICENSE')
-	zip_add(z, 'CHANGELOG.md')
+	with open(b, 'r') as f:
+		jb = json.load(f)
 
-	return z
-
-def merge_json(a, b):
-	ja = json.load(open(a, 'r'))
-	jb = json.load(open(b, 'r'))
 	ja.update(jb)
 
-	return json.dumps(ja, separators=(',', ':'))
+	with open(out, 'w') as f:
+		json.dump(ja, f, indent=4)
+
+def copy_source(dest_dir):
+	if os.path.isdir(dest_dir):
+		shutil.rmtree(dest_dir)
+	os.makedirs(dest_dir)
+
+	for fname in FILES:
+		if os.path.isdir(fname):
+			shutil.copytree(fname, os.path.join(dest_dir, fname))
+		else:
+			shutil.copy2(fname, dest_dir)
+
+def create_browser_dir(build_dir, browser_name):
+	browser_dir     = os.path.join(build_dir, browser_name)
+	browser_src_dir = os.path.join(browser_dir, 'src')
+
+	say('[Build/{}] Copying sources...\r', browser_name)
+	copy_source(browser_src_dir)
+	say('[Build/{}] Copying sources... done.\n', browser_name)
+
+	say('[Build/{}] Merging manifest...\r', browser_name)
+	merge_json('manifest.json', 'manifest.' + browser_name + '.json', os.path.join(browser_src_dir, 'manifest.json'))
+	say('[Build/{}] Merging manifest... done.\n', browser_name)
+
+	return browser_dir, browser_src_dir
+
+def build_chrome(build_dir):
+	bdir, sdir = create_browser_dir(build_dir, 'chrome')
+
+	say('[Build/chrome] Running web-ext...\r')
+
+	sp = subprocess.Popen(
+		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT
+	)
+
+	out, _ = sp.communicate()
+
+	say_pad(out, '[Build/chrome]')
+
+	if sp.returncode != 0:
+		say('[Build/chrome] Warning: web-ext exited with code {}.\n', sp.returncode)
+
+def build_firefox(build_dir):
+	bdir, sdir = create_browser_dir(build_dir, 'firefox')
+
+	say('[Build/firefox] Running web-ext...\r')
+
+	sp = subprocess.Popen(
+		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT
+	)
+
+	out, _ = sp.communicate()
+
+	say_pad(out, '[Build/firefox]')
+
+	if sp.returncode != 0:
+		say('[Build/firefox] Warning: web-ext exited with code {}.\n', sp.returncode)
 
 def build(repo, target, build_dir):
+	if os.getcwd() == os.path.abspath(build_dir):
+			say('[Build] Error: cannot build in source directory.\n')
+			exit(1)
+
 	if not os.path.isdir(build_dir):
 		try:
-			os.mkdir(build_dir)
+			os.makedirs(build_dir)
 		except:
 			say('[Build] Error: unable to create build directory "{}", aborting.\n', build_dir)
 			exit(1)
 
 	built    = []
 	tag_name = repo.git.describe('--tags')
-	browsers = TARGETS.get(target)
+	builders = TARGETS.get(target)
 
-	if browsers is None:
+	if builders is None:
 		say('[Build] Error: unknown target "{}", aborting.\n', target)
 		exit(1)
 
 	say('[Build] Target: {}.\n', target)
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
-	for browser in browsers:
-		zip_fname      = os.path.join(build_dir, tag_name + '_' + browser + '.zip')
-		manifest_fname = 'manifest.' + browser + '.json'
-
-		say('[Build] Browser: {}.\n', browser)
-		say('[Build] Creating ZIP: adding files...\r')
-
-		zip_file = zip_create(zip_fname)
-
-		say('[Build] Creating ZIP: adding manifest...\r')
-
-		if os.path.isfile(manifest_fname):
-			zip_file.writestr('manifest.json', merge_json('manifest.json', manifest_fname))
-		else:
-			zip_add(zip_file, 'manifest.json')
-
-		say('[Build] Creating ZIP: done ({}).\n', zip_fname)
-		zip_file.close()
-
-		built.append((zip_fname, 'application/zip'))
+	for builder in builders:
+		builder(build_dir)
 
 	say('[Build] Done.\n')
 
@@ -182,10 +223,17 @@ def deploy():
 
 ###############################################################
 
+FILES = [
+	'LICENSE',
+	'CHANGELOG.md',
+	'src',
+	'resources'
+]
+
 TARGETS = {
-	'chrome': ['chrome'],
-	'firefox': ['firefox'],
-	'all': ['chrome', 'firefox']
+	'chrome': [build_chrome],
+	'firefox': [build_firefox],
+	'all': [build_chrome, build_firefox]
 }
 
 if __name__ == '__main__':
