@@ -3,8 +3,8 @@ language: python
 python: "2.7"
 
 env:
-  - TARGET_BROWSER='chrome'
-  - TARGET_BROWSER='firefox'
+  - STREAM_LOCKER_TARGET='chrome'
+  - STREAM_LOCKER_TARGET='firefox'
 
 install:
   - sudo pip install --upgrade pip
@@ -12,7 +12,7 @@ install:
 
 script:
   - export GH_RELEASE_BRANCH='master' GH_RELEASE_BASENAME='Stream Locker'
-  - ./build.py release
+  - ./build.py --release "$STREAM_LOCKER_TARGET"
 
 notifications:
   email: false
