@@ -5,6 +5,7 @@ import os
 import sys
 import zipfile
 import json
+import argparse
 import git
 from datetime import datetime
 
@@ -35,13 +36,7 @@ def merge_json(a, b):
 
 	return json.dumps(ja, separators=(',', ':'))
 
-def build(repo, build_dir='build'):
-	ENV_BROWSER = os.getenv('TARGET_BROWSER')
-
-	if not ENV_BROWSER:
-		say('[Build] Error: missing TARGET_BROWSER env var, aborting build.\n')
-		exit(1)
-
+def build(repo, browsers, build_dir='build'):
 	if not os.path.isdir(build_dir):
 		try:
 			os.mkdir(build_dir)
@@ -49,24 +44,35 @@ def build(repo, build_dir='build'):
 			say('[Build] Error: unable to create build directory "{}", aborting build.\n', build_dir)
 			exit(1)
 
-	tag_name  = repo.git.describe('--tags')
-	zip_fname = os.path.join(build_dir, tag_name + '_' + ENV_BROWSER + '.zip')
+	built    = []
+	tag_name = repo.git.describe('--tags')
 
-	say('[Build] Target browser: {}.\n', ENV_BROWSER)
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
-	say('[Build] Creating ZIP: adding files...\r')
-	zip_file = zip_create(zip_fname)
+	for browser in browsers:
+		zip_fname      = os.path.join(build_dir, tag_name + '_' + browser + '.zip')
+		manifest_fname = 'manifest.' + browser + '.json'
 
-	say('[Build] Creating ZIP: adding manifest...\r')
-	zip_file.writestr('manifest.json', merge_json('manifest.json', 'manifest.chrome.json'))
+		say('[Build] Target browser: {}.\n', browser)
+		say('[Build] Creating ZIP: adding files...\r')
 
-	say('[Build] Creating ZIP: done ({}).\n', zip_fname)
-	zip_file.close()
+		zip_file = zip_create(zip_fname)
+
+		say('[Build] Creating ZIP: adding manifest...\r')
+
+		if os.path.isfile(manifest_fname):
+			zip_file.writestr('manifest.json', merge_json('manifest.json', manifest_fname))
+		else:
+			zip_add(zip_file, 'manifest.json')
+
+		say('[Build] Creating ZIP: done ({}).\n', zip_fname)
+		zip_file.close()
+
+		built.append((zip_fname, 'application/zip'))
 
 	say('[Build] Done.\n')
 
-	return [(zip_fname, 'application/zip')]
+	return built
 
 def get_head_tag_name(repo):
 	tag_name = repo.git.describe('--tags')
@@ -155,10 +161,16 @@ def release(repo, assets=[]):
 
 	say('[Release] Done.\n')
 
+TARGETS = {
+	'chrome': ['chrome'],
+	'firefox': ['firefox'],
+	'all': ['chrome', 'firefox']
+}
+
 if __name__ == '__main__':
 	git_repo = git.Repo()
 
-	assets = build(git_repo)
+	assets = build(git_repo, TARGETS['all'])
 
 	if 'release' in sys.argv[1:]:
 		release(git_repo, assets)
