@@ -189,7 +189,7 @@ def rename_assets(build_dir):
 		if os.path.isdir(bdir):
 			for fname in os.listdir(bdir):
 				ext        = fname[fname.rfind('.'):]
-				clean_name = re.sub(r'([\w_]+-\d+\.\d+\.\d+).*', r'\1', fname)
+				clean_name = re.sub(r'([\w_]+-(\d+\.)+\d).*', r'\1', fname)
 				newfname   = clean_name + '-' + target + ext
 
 				os.rename(os.path.join(bdir, fname),  os.path.join(bdir, newfname))
@@ -203,8 +203,8 @@ def get_assets(build_dir, deployed):
 		bdir, _ = get_browser_dirs(build_dir, target)
 
 		for fname in os.listdir(bdir):
-			if deployed and fname[-4:] == '.zip':
-				continue
+			#if deployed and fname[-4:] == '.zip':
+			#	continue
 
 			fullname = os.path.join(bdir, fname)
 			assets.append((fullname, mimetypes.guess_type(fullname)[0]))
