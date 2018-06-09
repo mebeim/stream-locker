@@ -61,7 +61,7 @@ Don't bother with the `--release` and `--deploy` options, They're only there for
  [3]: https://github.com/gitpython-developers/GitPython
  [4]: https://github.com/mozilla/web-ext
 
- [logo-img]:     https://github.com/mebeim/stream-locker/raw/master/images/icons/38.png
+ [logo-img]:     https://raw.githubusercontent.com/mebeim/stream-locker/master/resources/images/icons/38.png
  [license-img]:  https://img.shields.io/badge/License-GPL%20v3-blue.svg
  [license-link]: https://www.gnu.org/licenses/gpl-3.0
  [travis-img]:   https://travis-ci.com/mebeim/stream-locker.svg?branch=master

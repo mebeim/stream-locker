@@ -4,7 +4,7 @@
     "name": "Stream Locker",
 	"description": "Load streaming sites videos in the lightweight native HTML5 player and block annoying popups.",
 	"homepage_url": "https://github.com/mebeim/stream-locker",
-    "version": "0.1.0",
+    "version": "0.1.1",
 	"author": "Marco Bonelli",
 
     "background": {

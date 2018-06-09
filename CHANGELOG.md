@@ -4,6 +4,22 @@ Stream Locker Changelog
 Versions
 --------
 
+### [0.1.1][v0.1.1-beta] (2018-06-10)
+
+Published!
+
+ - Published to the Firefox Add-ons Store.
+ - Published to the Chrome Web Store.
+
+Solved issues:
+
+ - Installing is now easy-peasy.
+ - It turned out that the play/pause keyboard shortcut works correctly on Firefox.
+
+Developer notes:
+
+Integrated automatic build/realease/deploy script, the extension is now easily buildable by anyone. Firefox Add-ons Store deployment is automatic from Travis-CI, while Chrome Web Store deployment requires manual OAuth with expiring token, so unfortunately it can't be automated. Packaged assets will be manually added (if I figure out it makes sense adding them).
+
 ### [0.1.0][v0.1.0] (2018-06-06)
 
 Welcome to Beta.
@@ -57,6 +73,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v0.1.1-beta]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.1-beta
  [v0.1.0]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.0
  [v0.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.5
  [v0.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.4

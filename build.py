@@ -206,12 +206,10 @@ def get_assets(build_dir, deployed):
 	for target in filter(lambda k: k != 'all', TARGETS.keys()):
 		bdir, _ = get_browser_dirs(build_dir, target)
 
-		for fname in os.listdir(bdir):
-			#if deployed and fname[-4:] == '.zip':
-			#	continue
-
-			fullname = os.path.join(bdir, fname)
-			assets.append((fullname, mimetypes.guess_type(fullname)[0]))
+		if os.path.isdir(bdir):
+			for fname in os.listdir(bdir):
+				fullname = os.path.join(bdir, fname)
+				assets.append((fullname, mimetypes.guess_type(fullname)[0]))
 
 	if len(assets):
 		say('[Release] Gathering assets... done ({} found).\n', len(assets))
