@@ -73,7 +73,11 @@ def create_browser_dir(build_dir, browser_name):
 	return browser_dir, browser_src_dir
 
 def clean_browser_dir(bdir, sdir, browser_name):
+	say('[Build/{}] Cleaning build dir...\r', browser_name)
 	shutil.rmtree(sdir)
+	say('[Build/{}] Cleaning build dir... done.\n', browser_name)
+
+	say('[Build/{}] Gathering artifacts...\r', browser_name)
 
 	artifacts = []
 	for fname in os.listdir(bdir):
@@ -83,12 +87,12 @@ def clean_browser_dir(bdir, sdir, browser_name):
 		os.rename(os.path.join(bdir, fname), newfname)
 		artifacts.append((newfname, mimetypes.guess_type(newfname)[0]))
 
+	say('[Build/{}] Gathering artifacts... done.\n', browser_name)
+
 	return artifacts
 
-def build_chrome(build_dir, release=False):
-	bdir, sdir = create_browser_dir(build_dir, 'chrome')
-
-	say('[Build/chrome] Running web-ext build...\r')
+def web_ext_build(bdir, sdir, browser_name):
+	say('[Build/{}] Running web-ext build...\r', browser_name)
 
 	sp = subprocess.Popen(
 		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
@@ -98,57 +102,67 @@ def build_chrome(build_dir, release=False):
 
 	out, _ = sp.communicate()
 
-	say_pad(out, '[Build/chrome]')
+	say_pad(out, '[Build/{}]'.format(browser_name))
 
 	if sp.returncode != 0:
-		say('[Build/chrome] Warning: web-ext exited with code {}.\n', sp.returncode)
+		say('[Build/{}] Error: web-ext exited with code {}, aborting.\n', browser_name, sp.returncode)
+		exit(1)
 
-	return clean_browser_dir(bdir, sdir, 'chrome')
+def web_ext_sign(bdir, sdir, browser_name):
+	ENV_AMO_JWT_ISSUER = os.getenv('AMO_JWT_ISSUER')
+	ENV_AMO_JWT_SECRET = os.getenv('AMO_JWT_SECRET')
 
-def build_firefox(build_dir, release=False):
+	if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
+		say('[Build/{}] Error: missing one or more needed environment variables, aborting.\n', browser_name)
+		exit(1)
+
+	sp = subprocess.Popen(
+		[
+			'web-ext', 'sign',
+			'--api-key=' + ENV_AMO_JWT_ISSUER,
+			'--api-secret=' + ENV_AMO_JWT_SECRET,
+			'--source-dir=' + sdir,
+			'--artifacts-dir=' + bdir
+		],
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT
+	)
+
+	out, _ = sp.communicate()
+	say_pad(out, '[Build/{}]'.format(browser_name), True)
+
+	if sp.returncode != 0:
+		say('[Build/{}] Error: web-ext exited with code {}, aborting.\n', browser_name, sp.returncode)
+		exit(1)
+
+def build_chrome(build_dir, deploy=False):
+	bdir, sdir = create_browser_dir(build_dir, 'chrome')
+
+	if deploy:
+		# TODO
+		pass
+	else:
+		web_ext_build(bdir, sdir, 'chrome')
+
+	artifacts = clean_browser_dir(bdir, sdir, 'chrome')
+
+	return artifacts
+
+def build_firefox(build_dir, deploy=False):
 	bdir, sdir = create_browser_dir(build_dir, 'firefox')
 
 	say('[Build/firefox] Running web-ext sign...\r')
 
-	if release:
-		ENV_AMO_JWT_ISSUER = os.getenv('AMO_JWT_ISSUER')
-		ENV_AMO_JWT_SECRET = os.getenv('AMO_JWT_SECRET')
-
-		if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
-			say('[Build/firefox] Error: missing one or more needed environment variables, aborting.\n')
-			exit(1)
-
-		sp = subprocess.Popen(
-			[
-				'web-ext', 'sign',
-				'--api-key=' + ENV_AMO_JWT_ISSUER,
-				'--api-secret=' + ENV_AMO_JWT_SECRET,
-				'--source-dir=' + sdir,
-				'--artifacts-dir=' + bdir
-			],
-			stdout=subprocess.PIPE,
-			stderr=subprocess.STDOUT
-		)
-
-		out, _ = sp.communicate()
-		say_pad(out, '[Build/firefox]', True)
+	if deploy:
+		web_ext_sign(bdir, sdir, 'firefox')
 	else:
-		sp = subprocess.Popen(
-			['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
-			stdout=subprocess.PIPE,
-			stderr=subprocess.STDOUT
-		)
+		web_ext_build(bdir, sdir, 'firefox')
 
-		out, _ = sp.communicate()
-		say_pad(out, '[Build/firefox]')
+	artifacts = clean_browser_dir(bdir, sdir, 'firefox')
 
-	if sp.returncode != 0:
-		say('[Build/firefox] Error: web-ext exited with code {}, aborting.\n', sp.returncode)
-		exit(1)
+	return artifacts
 
-	return clean_browser_dir(bdir, sdir, 'firefox')
-
-def build(repo, target, build_dir, is_release):
+def build(repo, target, build_dir, deploy):
 	if os.getcwd() == os.path.abspath(build_dir):
 		say('[Build] Error: cannot build in source directory.\n')
 		exit(1)
@@ -172,7 +186,7 @@ def build(repo, target, build_dir, is_release):
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
 	for builder in builders:
-		assets = builder(build_dir, is_release)
+		assets = builder(build_dir, deploy)
 		built.extend(assets)
 
 	say('[Build] Done.\n')
@@ -289,7 +303,7 @@ if __name__ == '__main__':
 	args     = get_args()
 	git_repo = git.Repo()
 
-	assets = build(git_repo, args.target, args.build_dir, args.release)
+	assets = build(git_repo, args.target, args.build_dir, args.deploy)
 
 	if args.release:
 		release(git_repo, assets)
