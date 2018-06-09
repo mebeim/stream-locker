@@ -8,13 +8,17 @@ import argparse
 import shutil
 import subprocess
 import mimetypes
+import re
 import git
 from datetime import datetime
 
 def say(s, *args):
 	sys.stderr.write(s.format(*args))
 
-def say_pad(s, pad):
+def say_pad(s, pad, purge=False):
+	if purge:
+		s = re.sub(r'\s?Validating .*|Validation results: [^\s]+\s?', '', s)
+
 	for l in s.split('\n'):
 		if l.strip():
 			sys.stderr.write(pad + ' ' + l + '\n')
@@ -55,6 +59,9 @@ def create_browser_dir(build_dir, browser_name):
 	browser_dir     = os.path.join(build_dir, browser_name)
 	browser_src_dir = os.path.join(browser_dir, 'src')
 
+	if os.path.isdir(browser_dir):
+		shutil.rmtree(browser_dir)
+
 	say('[Build/{}] Copying sources...\r', browser_name)
 	copy_source(browser_src_dir)
 	say('[Build/{}] Copying sources... done.\n', browser_name)
@@ -65,17 +72,23 @@ def create_browser_dir(build_dir, browser_name):
 
 	return browser_dir, browser_src_dir
 
-def get_artifacts(bdir):
+def clean_browser_dir(bdir, sdir, browser_name):
+	shutil.rmtree(sdir)
+
 	artifacts = []
 	for fname in os.listdir(bdir):
-		artifacts.append((fname, mimetypes.guess_type(fname)[0]))
+		dot      = fname.rfind('.')
+		newfname = os.path.join(bdir, fname[:dot] + '_' + browser_name + fname[dot:])
+
+		os.rename(os.path.join(bdir, fname), newfname)
+		artifacts.append((newfname, mimetypes.guess_type(newfname)[0]))
 
 	return artifacts
 
-def build_chrome(build_dir):
+def build_chrome(build_dir, release=False):
 	bdir, sdir = create_browser_dir(build_dir, 'chrome')
 
-	say('[Build/chrome] Running web-ext...\r')
+	say('[Build/chrome] Running web-ext build...\r')
 
 	sp = subprocess.Popen(
 		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
@@ -90,36 +103,55 @@ def build_chrome(build_dir):
 	if sp.returncode != 0:
 		say('[Build/chrome] Warning: web-ext exited with code {}.\n', sp.returncode)
 
-	shutil.rmtree(sdir)
+	return clean_browser_dir(bdir, sdir, 'chrome')
 
-	return get_artifacts(bdir)
-
-def build_firefox(build_dir):
+def build_firefox(build_dir, release=False):
 	bdir, sdir = create_browser_dir(build_dir, 'firefox')
 
-	say('[Build/firefox] Running web-ext...\r')
+	say('[Build/firefox] Running web-ext sign...\r')
 
-	sp = subprocess.Popen(
-		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
-		stdout=subprocess.PIPE,
-		stderr=subprocess.STDOUT
-	)
+	if release:
+		ENV_AMO_JWT_ISSUER = os.getenv('AMO_JWT_ISSUER')
+		ENV_AMO_JWT_SECRET = os.getenv('AMO_JWT_SECRET')
 
-	out, _ = sp.communicate()
+		if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
+			say('[Build/firefox] Error: missing one or more needed environment variables, aborting.\n')
+			exit(1)
 
-	say_pad(out, '[Build/firefox]')
+		sp = subprocess.Popen(
+			[
+				'web-ext', 'sign',
+				'--api-key=' + ENV_AMO_JWT_ISSUER,
+				'--api-secret=' + ENV_AMO_JWT_SECRET,
+				'--source-dir=' + sdir,
+				'--artifacts-dir=' + bdir
+			],
+			stdout=subprocess.PIPE,
+			stderr=subprocess.STDOUT
+		)
+
+		out, _ = sp.communicate()
+		say_pad(out, '[Build/firefox]', True)
+	else:
+		sp = subprocess.Popen(
+			['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
+			stdout=subprocess.PIPE,
+			stderr=subprocess.STDOUT
+		)
+
+		out, _ = sp.communicate()
+		say_pad(out, '[Build/firefox]')
 
 	if sp.returncode != 0:
-		say('[Build/firefox] Warning: web-ext exited with code {}.\n', sp.returncode)
+		say('[Build/firefox] Error: web-ext exited with code {}, aborting.\n', sp.returncode)
+		exit(1)
 
-	shutil.rmtree(sdir)
+	return clean_browser_dir(bdir, sdir, 'firefox')
 
-	return get_artifacts(bdir)
-
-def build(repo, target, build_dir):
+def build(repo, target, build_dir, is_release):
 	if os.getcwd() == os.path.abspath(build_dir):
-			say('[Build] Error: cannot build in source directory.\n')
-			exit(1)
+		say('[Build] Error: cannot build in source directory.\n')
+		exit(1)
 
 	if not os.path.isdir(build_dir):
 		try:
@@ -140,8 +172,8 @@ def build(repo, target, build_dir):
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
 	for builder in builders:
-		assets = builder(build_dir)
-		built.append(assets)
+		assets = builder(build_dir, is_release)
+		built.extend(assets)
 
 	say('[Build] Done.\n')
 
@@ -229,7 +261,7 @@ def release(repo, assets=[]):
 
 	for fname, mimetype in assets:
 		say('[Release] Uploading {}...\r', fname)
-		gh_release.upload_asset(mimetype, fname, open(fname, 'rb').read())
+		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
 		say('[Release] Uploading {}... done.\n', fname)
 
 	say('[Release] Done.\n')
@@ -257,7 +289,7 @@ if __name__ == '__main__':
 	args     = get_args()
 	git_repo = git.Repo()
 
-	assets = build(git_repo, args.target, args.build_dir)
+	assets = build(git_repo, args.target, args.build_dir, args.release)
 
 	if args.release:
 		release(git_repo, assets)
