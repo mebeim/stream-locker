@@ -9,6 +9,7 @@ env:
 install:
   - sudo pip install --upgrade pip
   - pip install GitPython github3.py
+  - npm install -g web-ext
 
 script:
   - export GH_RELEASE_BRANCH='master' GH_RELEASE_BASENAME='Stream Locker'
