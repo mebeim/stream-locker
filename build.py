@@ -7,6 +7,7 @@ import json
 import argparse
 import shutil
 import subprocess
+import mimetypes
 import git
 from datetime import datetime
 
@@ -64,6 +65,13 @@ def create_browser_dir(build_dir, browser_name):
 
 	return browser_dir, browser_src_dir
 
+def get_artifacts(bdir):
+	artifacts = []
+	for fname in os.listdir(bdir):
+		artifacts.append((fname, mimetypes.guess_type(fname)[0]))
+
+	return artifacts
+
 def build_chrome(build_dir):
 	bdir, sdir = create_browser_dir(build_dir, 'chrome')
 
@@ -82,6 +90,10 @@ def build_chrome(build_dir):
 	if sp.returncode != 0:
 		say('[Build/chrome] Warning: web-ext exited with code {}.\n', sp.returncode)
 
+	shutil.rmtree(sdir)
+
+	return get_artifacts(bdir)
+
 def build_firefox(build_dir):
 	bdir, sdir = create_browser_dir(build_dir, 'firefox')
 
@@ -99,6 +111,10 @@ def build_firefox(build_dir):
 
 	if sp.returncode != 0:
 		say('[Build/firefox] Warning: web-ext exited with code {}.\n', sp.returncode)
+
+	shutil.rmtree(sdir)
+
+	return get_artifacts(bdir)
 
 def build(repo, target, build_dir):
 	if os.getcwd() == os.path.abspath(build_dir):
@@ -124,7 +140,8 @@ def build(repo, target, build_dir):
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
 	for builder in builders:
-		builder(build_dir)
+		assets = builder(build_dir)
+		built.append(assets)
 
 	say('[Build] Done.\n')
 
@@ -212,7 +229,7 @@ def release(repo, assets=[]):
 
 	for fname, mimetype in assets:
 		say('[Release] Uploading {}...\r', fname)
-		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
+		gh_release.upload_asset(mimetype, fname, open(fname, 'rb').read())
 		say('[Release] Uploading {}... done.\n', fname)
 
 	say('[Release] Done.\n')
