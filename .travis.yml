@@ -1,0 +1,18 @@
+language: python
+
+python: "2.7"
+
+env:
+  - TARGET_BROWSER='chrome'
+  - TARGET_BROWSER='firefox'
+
+install:
+  - sudo pip install --upgrade pip
+  - pip install GitPython github3.py
+
+script:
+  - export GH_RELEASE_BRANCH='master' GH_RELEASE_BASENAME='Stream Locker'
+  - ./build.py release
+
+notifications:
+  email: false
