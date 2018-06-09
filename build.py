@@ -15,11 +15,6 @@ from datetime import datetime
 def say(s, *args):
 	sys.stderr.write(s.format(*args))
 
-def say_pad(s, pad, purge=False):
-	for l in s.split('\n'):
-		if l.strip():
-			sys.stderr.write(pad + ' ' + l + '\n')
-
 def get_args():
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--release', action='store_true', help='create GitHub release')
@@ -85,10 +80,13 @@ def web_ext_build(bdir, sdir, browser_name):
 
 	out, _ = sp.communicate()
 
-	say_pad(out, '[Build/{}]'.format(browser_name))
+	say("[Build/{}] Building extension with 'web-ext build'...\r", browser_name)
 
-	if sp.returncode != 0:
-		say('[Build/{}] Error: web-ext exited with code {}, aborting.\n', browser_name, sp.returncode)
+	if sp.returncode == 0:
+		say("[Build/{}] Building extension with 'web-ext build'... done\n", browser_name)
+	else:
+		say("[Build/{}] Error: 'web-ext build' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
+		say(out)
 		exit(1)
 
 	say('[Build/{}] Done.\n', browser_name)
@@ -98,7 +96,7 @@ def web_ext_sign(bdir, sdir, browser_name):
 		say('[Deploy/{}] Error: missing one or more needed environment variables, aborting.\n', browser_name)
 		exit(1)
 
-	say('[Deploy/{}] Signing extension with web-ext sign...\r', browser_name)
+	say("[Deploy/{}] Signing extension with 'web-ext sign'...\r", browser_name)
 
 	sp = subprocess.Popen(
 		[
@@ -114,10 +112,12 @@ def web_ext_sign(bdir, sdir, browser_name):
 
 	out, _ = sp.communicate()
 
-	say('[Deploy/{}] Signing extension with web-ext sign... done.\n', browser_name)
-
-	if sp.returncode != 0:
-		say('[Deploy/{}] Error: web-ext sign exited with code {}, aborting.\n\n', browser_name, sp.returncode)
+	if sp.returncode != 0 and 'Version already exists' in out:
+		say("[Deploy/{}] Signing extension with 'web-ext sign'... version already signed.\n", browser_name)
+	elif sp.returncode == 0:
+		say("[Deploy/{}] Signing extension with 'web-ext sign'... done.\n", browser_name)
+	else:
+		say("[Deploy/{}] Error: 'web-ext sign' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
 		say(out)
 		exit(1)
 
@@ -158,8 +158,7 @@ def build(repo, target, build_dir):
 	say('[Build] Done.\n')
 
 def deploy_chrome(_):
-	say("[Deploy/chrome] Unfortunately, Google doesn't provide automatic\n")
-	say('[Deploy/chrome] deployment options for the Chrome Web Store :(\n')
+	say("[Deploy/chrome] Unfortunately Google doesn't like automatic deployment :(\n")
 	say('[Deploy/chrome] Done.\n')
 
 def deploy_firefox(build_dir):
@@ -210,7 +209,10 @@ def get_assets(build_dir, deployed):
 			fullname = os.path.join(bdir, fname)
 			assets.append((fullname, mimetypes.guess_type(fullname)[0]))
 
-	say('[Release] Gathering assets... done.\n')
+	if len(assets):
+		say('[Release] Gathering assets... done ({} found).\n', len(assets))
+	else:
+		say('[Release] Gathering assets... no assets found.\n')
 
 	return assets
 
