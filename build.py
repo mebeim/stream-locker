@@ -247,7 +247,7 @@ def get_changelog(fname):
 	changelog = []
 	ok = False
 
-	for l in open(fname, 'r').readlines():
+	for l in map(str.strip, open(fname, 'r').readlines()):
 		if ok and (l[:3] == '###' or l[:3] == '---'):
 			break
 
@@ -257,12 +257,16 @@ def get_changelog(fname):
 		if ok:
 			changelog.append(l)
 
-	h    = changelog[0]
+	h    = changelog.pop(0)
 	date = datetime.strptime(h[h.find('(')+1:h.find(')')], '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
-	head = date + ' — '
-	body = ''.join(changelog[1:]).strip('\n')
 
-	return head + body
+	while not changelog[0]:
+		changelog.pop(0)
+
+	head = date + ' — ' + '**' + changelog[0] + '**'
+	body = '\n'.join(changelog[1:]).strip('\n')
+
+	return head + '\n\n' + body
 
 def release_create(tag_name):
 	import github3
