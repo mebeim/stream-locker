@@ -227,7 +227,7 @@ def get_head_tag_name(repo):
 	return None
 
 def check_releasable(tag_name):
-	if not (ENV_GH_RELEASE_BRANCH and ENV_TRAVIS_BRANCH and ENV_TRAVIS_PR):
+	if not (ENV_GH_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_GH_RELEASE_BRANCH and ENV_TRAVIS_REPO_SLUG and ENV_TRAVIS_BRANCH and ENV_TRAVIS_PR):
 		say('[Release] Error: missing one or more needed environment variables, aborting.\n')
 		exit(1)
 
@@ -266,10 +266,6 @@ def get_changelog(fname):
 
 def release_create(tag_name):
 	import github3
-
-	if not (ENV_GH_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_TRAVIS_REPO_SLUG):
-		say('[Release] Error: missing one or more needed environment variables, aborting.\n')
-		exit(1)
 
 	check_releasable(tag_name)
 
