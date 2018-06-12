@@ -10,7 +10,7 @@
     "background": {
 		"scripts": [
 			"src/scripts/my_log.js",
-			"src/background.js"
+			"src/scripts/background.js"
 		]
 	},
 
