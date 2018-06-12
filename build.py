@@ -78,7 +78,7 @@ def web_ext_build(bdir, sdir, browser_name):
 		stderr=subprocess.STDOUT
 	)
 
-	out, _ = sp.communicate()
+	out = sp.communicate()[0]
 
 	say("[Build/{}] Building extension with 'web-ext build'...\r", browser_name)
 
@@ -110,7 +110,7 @@ def web_ext_sign(bdir, sdir, browser_name):
 		stderr=subprocess.STDOUT
 	)
 
-	out, _ = sp.communicate()
+	out = sp.communicate()[0]
 
 	if sp.returncode != 0 and 'Version already exists' in out:
 		say("[Deploy/{}] Signing extension with 'web-ext sign'... version already signed.\n", browser_name)
@@ -188,7 +188,7 @@ def clean_build_dir(build_dir):
 
 def rename_assets(build_dir):
 	for target in filter(lambda k: k != 'all', TARGETS.keys()):
-		bdir, _ = get_browser_dirs(build_dir, target)
+		bdir = get_browser_dirs(build_dir, target)[0]
 
 		if os.path.isdir(bdir):
 			for fname in os.listdir(bdir):
@@ -204,7 +204,7 @@ def get_assets(build_dir, deployed):
 	assets = []
 
 	for target in filter(lambda k: k != 'all', TARGETS.keys()):
-		bdir, _ = get_browser_dirs(build_dir, target)
+		bdir = get_browser_dirs(build_dir, target)[0]
 
 		if os.path.isdir(bdir):
 			for fname in os.listdir(bdir):
