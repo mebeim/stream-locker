@@ -1,0 +1,8 @@
+{
+	"blacklist": [],
+
+	"global": {
+		"blockPopups": true,
+		"playerInNewTab": false
+	}
+}

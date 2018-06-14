@@ -45,6 +45,28 @@ function loadBlacklist(blacklist) {
 	})
 }
 
+function loadDefaultOptions() {
+	return new Promise((resolve, reject) => {
+		_log('No options found, loading default.')
+
+		fetch('/resources/json/defaultOptions.json').then(resp => {
+			if (resp.ok && resp.status == 200) {
+				resp.json().then(resolve, reject)
+			} else {
+				_log(`Unable to retrieve defalt options! Response status code: ${resp.status}.`, 'crimson')
+				reject()
+			}
+		}).catch(reject)
+	})
+}
+
+function loadStorage() {
+	chrome.storage.local.get(null, storage => {
+		if (!storage.options)
+			loadDefaultOptions().then(options => chrome.storage.local.set({options}))
+	})
+}
+
 function checkMedia(media) {
 	return new Promise((resolve, reject) => {
 		let testPlayer = document.createElement('video')
@@ -140,10 +162,18 @@ function checkTab(tabId, info, tab) {
 	}
 }
 
+function handleMessage(request, sender, respond) {
+	switch (request.message) {
+		case 'popup info':
+			respond(watchedTabs.has(request.tabId))
+	}
+}
+
 function start() {
 	chrome.tabs.onUpdated.addListener(checkTab)
 	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id))
 	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups)
+	chrome.runtime.onMessage.addListener(handleMessage)
 }
 
 // Is checking extensions the right way? Is xhr needed?
@@ -155,4 +185,5 @@ const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*',
       watchedTabs             = new Set(),
       blacklist               = new Set()
 
+loadStorage()
 loadBlacklist(blacklist).then(start)
