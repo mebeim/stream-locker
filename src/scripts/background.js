@@ -182,6 +182,11 @@ function checkTab(tabId, info, tab) {
 	}
 }
 
+function unwatchTab(tabId) {
+	tabWatchlist.delete(tabId)
+	popupWatchlist.delete(tabId)
+}
+
 function handleMessage(request, sender, respond) {
 	switch (request.message) {
 		case 'popup info':
@@ -192,7 +197,7 @@ function handleMessage(request, sender, respond) {
 
 function start() {
 	chrome.tabs.onUpdated.addListener(checkTab)
-	chrome.tabs.onRemoved.addListener(id => tabWatchlist.delete(id))
+	chrome.tabs.onRemoved.addListener(unwatchTab)
 	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups)
 	chrome.runtime.onMessage.addListener(handleMessage)
 
