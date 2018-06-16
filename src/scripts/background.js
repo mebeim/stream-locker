@@ -25,26 +25,6 @@ function extractHostname(url) {
 	return partial.substr(0, len)
 }
 
-function loadBlacklist(blacklist) {
-	return new Promise((resolve, reject) => {
-		fetch('/resources/txt/blacklist.txt').then(resp => {
-			if (resp.ok && resp.status == 200) {
-				resp.text().then(txt => {
-					txt.split('\n')
-					   .map(Function.prototype.call.bind(String.prototype.trim))
-					   .filter(Boolean)
-					   .forEach(blacklist.add.bind(blacklist))
-
-					resolve()
-				})
-			} else {
-				_log(`Unable to retrieve blacklist! Response status code: ${resp.status}.`, 'crimson')
-				reject()
-			}
-		}).catch(reject)
-	})
-}
-
 function loadDefaultOptions() {
 	return new Promise((resolve, reject) => {
 		_log('No options found, loading default.')
@@ -61,9 +41,29 @@ function loadDefaultOptions() {
 }
 
 function loadStorage() {
-	chrome.storage.local.get(null, storage => {
-		if (!storage.options)
-			loadDefaultOptions().then(options => chrome.storage.local.set({options}))
+	return new Promise((resolve, reject) => {
+		chrome.storage.local.get(null, storage => {
+			if (storage.options)
+				resolve(storage.options)
+			else
+				loadDefaultOptions().then(options => chrome.storage.local.set({options}, () => resolve(options)))
+		})
+	})
+}
+
+function parseOptions(options) {
+	for (let k of Object.keys(options.global))
+		globalOptions[k] = options.global[k]
+
+	blacklist.clear()
+
+	options.blacklist.forEach(site => {
+		if ((site.enabled !== undefined && site.enabled) || globalOptions.enabled) {
+			blacklist.set(site.hostname, {
+				blockPopups: site.blockPopups !== undefined ? site.blockPopups : globalOptions.blockPopups,
+				playerInNewTab: site.playerInNewTab !== undefined ? site.playerInNewTab : globalOptions.playerInNewTab
+			})
+		}
 	})
 }
 
@@ -78,14 +78,23 @@ function checkMedia(media) {
 }
 
 function startPlayer(media) {
-	chrome.tabs.update(media.tab.id, {
-		url: '/src/player/player.html?' +
-		'src=' + encodeURIComponent(media.url) +
-		'&mime=' + media.contentType +
-		'&title=' + media.pageTitle
-	}, tab => {
-		_log(`Launched player (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
-	})
+	let site = blacklist.get(extractHostname(media.tab.url)),
+	    url = '/src/player/player.html?'
+	        + 'src=' + encodeURIComponent(media.url)
+	        + '&mime=' + media.contentType
+			+ '&title=' + media.pageTitle
+
+	// TODO: create a cache with expiration of 500ms and check it before launching the player.
+
+	if (site && site.playerInNewTab) {
+		chrome.tabs.create({url}, tab => {
+			_log(`Launched player in new tab (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
+		})
+	} else {
+		chrome.tabs.update(media.tab.id, {url}, tab => {
+			_log(`Launched player (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
+		})
+	}
 }
 
 /**
@@ -93,8 +102,10 @@ function startPlayer(media) {
  * https://stackoverflow.com/questions/46407042
  */
 function blockPopups(details) {
-	if (watchedTabs.has(details.sourceTabId))
+	if (popupWatchlist.has(details.sourceTabId)) {
 		chrome.tabs.remove(details.tabId)
+		_log(`Blocked popup from tab #${details.tabId}.`, 'orange')
+	}
 }
 
 function checkRequest(details) {
@@ -132,9 +143,11 @@ function checkRequest(details) {
 }
 
 function checkTab(tabId, info, tab) {
-	if (blacklist.has(extractHostname(tab.url))) {
-		if (!watchedTabs.has(tabId)) {
-			_log(`tab #${tabId} (${tab.index+1}) loaded blacklisted URL: ${tab.url}`)
+	let hostname = extractHostname(tab.url)
+
+	if (blacklist.has(hostname)) {
+		if (!tabWatchlist.has(tabId)) {
+			_log(`Tab #${tabId} (${tab.index+1}) loaded blacklisted hostname: ${hostname}.`)
 
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
 				tabId: tabId,
@@ -142,22 +155,29 @@ function checkTab(tabId, info, tab) {
 				types: WEBREQUEST_FILTER_TYPES
 			}, ['responseHeaders'])
 
-			watchedTabs.add(tabId)
-			_log(`tab #${tabId} added to watchlist`)
+			tabWatchlist.add(tabId)
+			_log(`Tab #${tabId} added to watchlist.`)
+
+			if (blacklist.get(hostname).blockPopups) {
+				popupWatchlist.add(tabId)
+				_log(`Tab #${tabId} added to popup watchlist.`)
+			}
 		}
 
 		chrome.pageAction.show(tabId)
 		chrome.pageAction.setTitle({tabId: tabId, title: 'Stream Locker: this site is blacklisted.'})
 	} else {
-		if (watchedTabs.has(tabId)) {
+		if (tabWatchlist.has(tabId)) {
 			chrome.webRequest.onHeadersReceived.removeListener(checkRequest, {
 				tabId: tabId,
 				urls: WEBREQUEST_FILTER_URLS,
 				types: WEBREQUEST_FILTER_TYPES
 			}, ['responseHeaders'])
 
-			watchedTabs.delete(tabId)
-			_log(`tab #${tabId} removed from watchlist`)
+			tabWatchlist.delete(tabId)
+			popupWatchlist.delete(tabId)
+
+			_log(`Tab #${tabId} removed from watchlist(s).`)
 		}
 	}
 }
@@ -165,15 +185,18 @@ function checkTab(tabId, info, tab) {
 function handleMessage(request, sender, respond) {
 	switch (request.message) {
 		case 'popup info':
-			respond(watchedTabs.has(request.tabId))
+			// TODO
+			respond('something')
 	}
 }
 
 function start() {
 	chrome.tabs.onUpdated.addListener(checkTab)
-	chrome.tabs.onRemoved.addListener(id => watchedTabs.delete(id))
+	chrome.tabs.onRemoved.addListener(id => tabWatchlist.delete(id))
 	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups)
 	chrome.runtime.onMessage.addListener(handleMessage)
+
+	// TODO: Watch for storage changes.
 }
 
 // Is checking extensions the right way? Is xhr needed?
@@ -182,8 +205,9 @@ const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*',
       contentTypePattern      = /^(application\/octet\-stream|video\/.*)$/i,
       goodContentTypePattern  = /^video\/(mp4|webm|ogg)$/i,
       badContentTypePattern   = /^video\/(x\-)?flv$/i,
-      watchedTabs             = new Set(),
-      blacklist               = new Set()
+      tabWatchlist            = new Set(),
+      popupWatchlist          = new Set(),
+      blacklist               = new Map(),
+      globalOptions           = new Object()
 
-loadStorage()
-loadBlacklist(blacklist).then(start)
+loadStorage().then(parseOptions).then(start)

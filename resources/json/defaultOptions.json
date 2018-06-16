@@ -2,6 +2,7 @@
 	"blacklist": [],
 
 	"global": {
+		"enabled": true,
 		"blockPopups": true,
 		"playerInNewTab": false
 	}
