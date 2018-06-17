@@ -4,8 +4,6 @@ Stream Locker Changelog
 Versions
 --------
 
-### [0.1.1][v0.1.1-beta] (2018-06-10)
-
 Published!
 
  - Published to the Firefox Add-ons Store.
@@ -20,7 +18,7 @@ Developer notes:
 
 Integrated automatic build/realease/deploy script, the extension is now easily buildable by anyone. Firefox Add-ons Store deployment is automatic from Travis-CI, while Chrome Web Store deployment requires manual OAuth with expiring token, so unfortunately it can't be automated. Packaged assets will be manually added (if I figure out it makes sense adding them).
 
-### [0.1.0][v0.1.0] (2018-06-06)
+### [0.1.0][v0.1.0] (alpha) — 2018-06-06
 
 Welcome to Beta.
 
@@ -34,7 +32,7 @@ Known issues:
  - Installing on Firefox is still not as easy as in Chrome. The extension doesn't have an ID and is not signed yet so the only option is to manually install it as temporary add-on from `about:debugging`. Sorry about that, still getting the hang of it.
  - On Firefox, the <kbd>space</kbd> key doesn't work for playing/pausing. I have no clue why, since the event is correctly detected and the `.play()` method is correctly called, but whatever, I'll figure it out in some next version.
 
-### [0.0.5][v0.0.5] (2018-04-28)
+### [0.0.5][v0.0.5] (alpha) — 2018-04-28
 
 Moving towards something usable!
 
@@ -43,7 +41,7 @@ Moving towards something usable!
  - Added keyboard shortcuts for volume up/down.
  - Added some sites to blacklist.
 
-### [0.0.4][v0.0.4] (2017-07-08)
+### [0.0.4][v0.0.4] (alpha) — 2017-07-08
 
 First public release.
 
@@ -53,7 +51,7 @@ First public release.
  - Added some sites to blacklist.
  - Edited request filters for new updated `media` type, minimum Chrome version required: `58.0.3029.110`.
 
-### 0.0.3 (2017-01-07)
+### 0.0.3 (alpha) — 2017-01-07
 
  - Added support for thevideo.me, vidbabc.com, and streamin.to.
  - Removed video_extensions list, useless.
@@ -61,12 +59,12 @@ First public release.
  - Player page title is now the same as the original page.
  - Faster pupup tab close.
 
-### 0.0.2 (2016-12-22)
+### 0.0.2 (alpha) — 2016-12-22
 
  - Added fullscreen on double-click.
  - Added mousewheel volume control.
 
-### 0.0.1 (2016-12-19)
+### 0.0.1 (alpha) — 2016-12-19
 
  - First alpha version!
 

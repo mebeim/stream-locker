@@ -258,7 +258,7 @@ def get_changelog(fname):
 			changelog.append(l)
 
 	h    = changelog.pop(0)
-	date = datetime.strptime(h[h.find('(')+1:h.find(')')], '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
+	date = datetime.strptime(h[h.rfind('—')+len('—'):].strip(), '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
 
 	while not changelog[0]:
 		changelog.pop(0)
