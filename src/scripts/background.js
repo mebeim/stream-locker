@@ -1,5 +1,5 @@
 /**
- * This file is part of the Stream Locker Chrome extension.
+ * This file is part of the Stream Locker browser extension.
  * Copyright (c) 2017 Marco Bonelli.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -43,6 +43,8 @@ function loadDefaultOptions() {
 function loadStorage() {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(null, storage => {
+			// TODO: Load defaults anyway and check diff to see if new options need to be loaded.
+
 			if (storage.options)
 				resolve(storage.options)
 			else
