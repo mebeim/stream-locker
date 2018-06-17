@@ -4,6 +4,18 @@ Stream Locker Changelog
 Versions
 --------
 
+### [0.1.2][v0.1.2-pre] (pre-release) — 2018-06-17
+
+Options.
+
+ - Added first working version of options page with editable blacklist.
+
+Developer notes:
+
+Man if I love [Vue.js](https://vuejs.org/)!
+
+### [0.1.1][v0.1.1-beta] (beta) — 2018-06-10
+
 Published!
 
  - Published to the Firefox Add-ons Store.
