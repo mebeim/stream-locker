@@ -1,0 +1,347 @@
+/**
+ * This file is part of the Stream Locker browser extension.
+ * Copyright (c) 2017 Marco Bonelli.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ */
+
+/***** VARS *****/
+
+:root {
+	--stream-locker-orange: #df4432;
+	--stream-locker-shadow: #b33729;
+	--stream-locker-yellow: #ffe500;
+	--bg: #fff1b9 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAACVBMVEUAAAD///////9zeKVjAAAAAnRSTlMAAHaTzTgAAAAtSURBVHgB1c2hFcBQFEKxwP5D1/7zmKDmigiQpO1bK1YcCY5EdfZ//4i+NdIPOVABxEV3x30AAAAASUVORK5CYII=);
+	--fg: #330000;
+	--shadow: 0px 6px 3px -3px rgba(0, 0, 0, 0.3);
+	--minus-white: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDQ4IiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gPGc+ICA8dGl0bGU+YmFja2dyb3VuZDwvdGl0bGU+ICA8cmVjdCBmaWxsPSJub25lIiBpZD0iY2FudmFzX2JhY2tncm91bmQiIGhlaWdodD0iNDAyIiB3aWR0aD0iNTgyIiB5PSItMSIgeD0iLTEiLz4gPC9nPiA8Zz4gIDx0aXRsZT5MYXllciAxPC90aXRsZT4gIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGlkPSJzdmdfMSIgZD0ibTQxNiwyMDhsLTM4NCwwYy0xNy42NywwIC0zMiwxNC4zMyAtMzIsMzJsMCwzMmMwLDE3LjY3IDE0LjMzLDMyIDMyLDMybDM4NCwwYzE3LjY3LDAgMzIsLTE0LjMzIDMyLC0zMmwwLC0zMmMwLC0xNy42NyAtMTQuMzMsLTMyIC0zMiwtMzJ6Ii8+IDwvZz48L3N2Zz4=);
+	--minus-yellow: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDQ4IiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gPGc+ICA8dGl0bGU+YmFja2dyb3VuZDwvdGl0bGU+ICA8cmVjdCB4PSItMSIgeT0iLTEiIHdpZHRoPSI0NTAiIGhlaWdodD0iNTE0IiBpZD0iY2FudmFzX2JhY2tncm91bmQiIGZpbGw9Im5vbmUiLz4gPC9nPiA8Zz4gIDx0aXRsZT5MYXllciAxPC90aXRsZT4gIDxwYXRoIGQ9Im00MTYsMjA4bC0zODQsMGMtMTcuNjcsMCAtMzIsMTQuMzMgLTMyLDMybDAsMzJjMCwxNy42NyAxNC4zMywzMiAzMiwzMmwzODQsMGMxNy42NywwIDMyLC0xNC4zMyAzMiwtMzJsMCwtMzJjMCwtMTcuNjcgLTE0LjMzLC0zMiAtMzIsLTMyeiIgaWQ9InN2Z18xIiBmaWxsPSIjZmZlNTAwIi8+IDwvZz48L3N2Zz4=);
+}
+
+/***** GLOBAL *****/
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: var(--stream-locker-shadow);
+	height: 0px;
+	border-radius: 4px;
+}
+
+body {
+	font-family: Lato, sans-serif;
+	color: var(--fg);
+	background: var(--bg);
+	background-attachment: fixed;
+}
+
+h1, h2 {
+	font-weight: inherit;
+	padding: 0;
+	margin: 0;
+}
+
+h1 {
+	font-size: 30px;
+}
+
+h2 {
+	font-size: 20px;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+input[type="checkbox"] {
+	margin: 0;
+	vertical-align: middle;
+}
+
+/***** SAVE POPUP NOTIFICATION *****/
+
+#save-popup {
+	position: fixed;
+	width: 100%;
+	text-align: center;
+	height: 50px;
+	margin: 0;
+	top: -50px;
+	transition: top 0.3s cubic-bezier(0.65, 0.05, 0, 0.9);
+}
+
+#save-popup.active {
+	top: 0px;
+}
+
+#save-popup span {
+	background: #008a44;
+	padding: 5px;
+	font-size: 25px;
+	color: white;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+/***** CUSTOM COMPONENTS *****/
+
+.default-checkbox {
+	user-select: none;
+	-moz-user-select: none;
+	cursor: pointer;
+	border-radius: 10px;
+	padding: 1px;
+	background-color: #a50017;
+	color:white;
+}
+
+.default-checkbox.checked {
+	background-color: #005d29;
+}
+
+.default-checkbox.default {
+	background-color: #905050;
+	color: #f3f3f3;
+}
+.default-checkbox:hover {
+	background-color: rgba(0, 0, 0, 0.7);
+	color:var(--stream-locker-yellow);
+}
+
+/***** HEADER *****/
+
+header {
+	padding: 0 10px;
+}
+
+header:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+
+#ext-icon {
+	float: left;
+	border-radius: 50%;
+}
+
+#ext-name, #page-title {
+	display: inline-block;
+	white-space: nowrap;
+	margin-left: 10px;
+}
+
+/***** FOOTER *****/
+
+footer {
+	width: 100%;
+	display: block;
+	position: relative;
+	font-size: 14px;
+}
+
+footer a {
+	margin-top: 5px;
+}
+
+#ext-version {
+	float: left;
+	margin-left: 10px;
+}
+
+#ext-copyright {
+	float: right;
+	margin-right: 10px;
+}
+
+/***** CONTAINER *****/
+
+#loading-pane {
+	background: var(--bg);
+	z-index: 1;
+}
+
+#container {
+	width: 95%;
+	max-width: 1000px;
+	margin: 15px auto;
+	padding-bottom: 30px;
+}
+
+#loading-pane {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: white;
+}
+
+/***** SECTIONS *****/
+
+section {
+	color: white;
+	background-color: var(--stream-locker-orange);
+	border-radius: 10px;
+	box-shadow: var(--shadow);
+	margin-top: 15px;
+}
+
+section h1 {
+	font-size: 20px;
+	color: var(--stream-locker-yellow);
+}
+
+section h2, section > .content {
+	font-size: 14px;
+}
+
+section > .head, section > .content {
+	padding: 10px;
+}
+
+section > .head {
+	background-color: var(--stream-locker-shadow);
+	border-radius: inherit;
+	box-shadow: var(--shadow);
+}
+
+/***** BLACKLIST ****/
+
+.blacklist-table {
+	width: 100%;
+	table-layout: fixed;
+}
+
+.blacklist-table tr :first-child {
+	border-left: 0;
+}
+
+.blacklist-table tr {
+	font-size: 1em;
+	text-align: center;
+}
+
+.blacklist-table tr > :not(.hostname) {
+	width: 60px;
+}
+
+.blacklist-table .hostname {
+	text-align: left;
+}
+
+#blacklist-head {
+	box-sizing: border-box;
+	padding-right: 8px;
+}
+
+#blacklist-head thead {
+	margin-right: 8px;
+}
+
+#blacklist-head th {
+	padding: 0px 4px;
+}
+
+#blacklist-head th {
+	padding-bottom: 4px;
+	white-space: pre;
+}
+
+#blacklist-container {
+	overflow-y: scroll;
+	max-height: 300px;
+}
+
+#blacklist-container:after {
+	content: '';
+	display: block;
+	height: 15px;
+	margin-top: -15px;
+	position: sticky;
+	bottom: 0;
+	background: linear-gradient(to bottom, transparent 0%, var(--stream-locker-orange) 100%);
+}
+
+#blacklist {
+	margin-bottom: 15px;
+	border-collapse: collapse;
+}
+
+#blacklist tr.even {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+#blacklist td {
+	padding: 2px 4px;
+}
+
+#blacklist .hostname {
+	font-family: 'Courier New', Courier, monospace;
+	word-break: break-word;
+}
+
+#blacklist .hostname:hover {
+	background-color: var(--stream-locker-shadow);
+}
+
+#blacklist tr.disabled > .hostname {
+    text-decoration: line-through;
+}
+
+#blacklist .remove {
+	background-image: var(--minus-white);
+	background-size: 15px;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	opacity: 0.5;
+	cursor: pointer;
+}
+
+#blacklist .remove:hover {
+	opacity: 1;
+	background-image: var(--minus-yellow);
+	background-color: var(--stream-locker-shadow);
+}
+
+.hostname .edit {
+	display: none;
+	position: relative;
+	float: right;
+	padding: 0px 4px;
+	color: white;
+	user-select: none;
+	-moz-user-select: none;
+	cursor: pointer;
+}
+
+.hostname .edit:hover {
+	color: var(--stream-locker-yellow);
+}
+
+.hostname:hover > .edit {
+	display: inline;
+}
+
+.editable[contenteditable="true"] {
+	outline: white dotted 1px;
+	outline-style: dotted;
+}
+
+.editable[contenteditable="true"]:focus {
+	color: var(--stream-locker-yellow);
+}

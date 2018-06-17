@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<!--
+	This file is part of the Stream Locker browser extension.
+	Copyright (c) 2017 Marco Bonelli.
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3.
+
+	This program is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details.
+-->
+
+<html>
+	<head>
+		<title>Options</title>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<link rel="stylesheet" href="/resources/css/fonts.css">
+		<link rel="stylesheet" href="options.css">
+	</head>
+
+	<body>
+		<div id="save-popup"><span>Options saved!</span></div>
+
+		<div id="container">
+			<div id="loading-pane" v-if="false"></div>
+
+			<header>
+				<img id="ext-icon" src="/resources/images/icons/64.png">
+				<h1 id="ext-name">{{extManifest.name}}</h1>
+				<br>
+				<h2 id="page-title">Extension options</h2>
+			</header>
+
+			<section>
+				<div class="head">
+					<h1>Blacklist</h1>
+					<h2>This is your blacklist: add sites to it, and Stream Locker will do its job when you visit them. You can enable or disable a site, decide whether to block popups from it, and decide whether to open the player in a new tab or not, using the relative checkboxes. Please, only specify the <b>hostname</b> of the site.</h2>
+				</div>
+				<div class="content">
+					<table id="blacklist-head" class="blacklist-table">
+						<thead>
+							<tr>
+								<th>Enabled</th>
+								<th class="hostname">Hostname</th>
+								<th>Block<br>popups</th>
+								<th>Player in<br>new tab</th>
+								<th>Remove</th>
+							</tr>
+						</thead>
+					</table>
+					<div id="blacklist-container">
+						<table id="blacklist" class="blacklist-table">
+							<tbody>
+								<tr v-for="(s, i) in options.blacklist" :class="{even: i % 2 == 0, disabled: s.enabled !== undefined ? !s.enabled : !options.global.enabled}">
+									<td><default-checkbox v-model="s.enabled" @input="queueSave"></default-checkbox></td>
+									<td class="hostname" spellcheck="false">
+										<span class="editable" @keydown.enter.prevent="saveBlacklistedSite(i, $event.target)">{{s.hostname}}</span>
+										<span class="edit" @click="editBlacklistedSite(i, $event.target)">Edit</span>
+									</td>
+									<td><default-checkbox v-model="s.blockPopups" @input="queueSave"></default-checkbox></td>
+									<td><default-checkbox v-model="s.playerInNewTab" @input="queueSave"></default-checkbox></td>
+									<td class="remove" :title="'Remove ' + s.hostname" @click="removeBlacklistedSite(i)"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			<footer>
+				<a id="ext-version" :href="extManifest.homepage_url" target="homepage">v{{extManifest.version}}</a>
+				<a id="ext-copyright" href="https://twitter.com/mebeim" target="dev_twitter">&copy; 2017 {{extManifest.author}}</a>
+			</footer>
+		</div>
+
+		<!-- Switch to vue.min.js for release: -->
+		<script src="/resources/js/vue.js"></script>
+		<script src="options.js"></script>
+	</body>
+</html>
