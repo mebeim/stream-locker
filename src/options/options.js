@@ -87,7 +87,7 @@ function start() {
 		props: {
 			value: {},
 			values: {
-				default: () => ['YES', 'NO', 'Default']
+				default: () => ['Default', 'YES', 'NO']
 			}
 		},
 		template: `
@@ -96,17 +96,20 @@ function start() {
 				:class="{checked: value === true, default: value === undefined}"
 				@click="$emit('input', getNext())"
 			>
-				{{values[selected]}}
+				{{map[value]}}
 			</div>
 		`,
 		created: function () {
-			this.states = [true, false, undefined]
-			this.selected = this.states.indexOf(this.value)
+			this.states = [undefined, true, false]
+			this.map = {}
+
+			for (let i = 0; i < this.values.length; i++)
+				this.map[this.states[i]] = this.values[i]
 		},
 		methods: {
 			getNext: function() {
-				this.selected = (this.selected + 1) % 3
-				return this.states[this.selected]
+				let i = (this.states.indexOf(this.value) + 1) % this.states.length
+				return this.states[i]
 			}
 		}
 	})
