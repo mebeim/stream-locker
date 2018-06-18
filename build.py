@@ -112,8 +112,11 @@ def web_ext_sign(bdir, sdir, browser_name):
 
 	out = sp.communicate()[0]
 
-	if sp.returncode != 0 and 'Version already exists' in out:
-		say("[Deploy/{}] Signing extension with 'web-ext sign'... version already signed.\n", browser_name)
+	if sp.returncode != 0:
+		if 'Version already exists' in out:
+			say("[Deploy/{}] Signing extension with 'web-ext sign'... version already signed.\n", browser_name)
+		elif 'submitted for review' in out and 'It passed validation' in out:
+			say("[Deploy/{}] Signing extension with 'web-ext sign'... submitted for review, not directly signed.\n", browser_name)
 	elif sp.returncode == 0:
 		say("[Deploy/{}] Signing extension with 'web-ext sign'... done.\n", browser_name)
 	else:
