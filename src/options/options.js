@@ -18,6 +18,7 @@ function getOptions() {
 	return new Promise((resolve, _) => {
 		chrome.storage.local.get('options', storage => {
 			options = storage.options
+			options.blacklist.map(s => s.hostname).forEach(hostnamesSet.add.bind(hostnamesSet))
 			resolve()
 		})
 	})
@@ -59,11 +60,12 @@ function addBlacklistedSite() {
 	})
 }
 
-function removeBlacklistedSite(i) {
+function removeBlacklistedSite(i, hostname) {
 	if (currentlyEditing != null)
 		saveBlacklistedSite(currentlyEditing)
 
 	options.blacklist.splice(i, 1)
+	hostnamesSet.delete(hostname)
 	queueSave()
 }
 
@@ -96,16 +98,24 @@ function saveBlacklistedSite(i, el, btn) {
 		btn = el.parentElement.querySelector('.edit')
 	btn.textContent = 'Edit';
 
-	let newHostname = fixHostname(el.textContent)
+	let newHostname = fixHostname(el.textContent),
+	    oldHostname = options.blacklist[i].hostname
 
-	if (newHostname) {
-		if (options.blacklist[i].hostname != newHostname) {
+	if (newHostname && !hostnamesSet.has(newHostname)) {
+		if (newHostname != oldHostname) {
 			options.blacklist[i].hostname = newHostname
 			el.textContent = newHostname
+
+			hostnamesSet.delete(oldHostname)
+			hostnamesSet.add(newHostname)
+
 			queueSave()
 		}
 	} else {
-		el.textContent = options.blacklist[i].hostname
+		if (oldHostname == '')
+			options.blacklist.splice(i, 1)
+		else
+			el.textContent = oldHostname
 	}
 
 	currentlyEditing = null
@@ -169,10 +179,12 @@ function start() {
 	})
 }
 
+const hostnamesSet = new Set(),
+      savePopup = document.getElementById('save-popup')
+
 let options = null,
-	saveTimeout = null,
-	savePopupTimeout = null,
-	currentlyEditing = null,
-	savePopup = document.getElementById('save-popup')
+    saveTimeout = null,
+    savePopupTimeout = null,
+    currentlyEditing = null
 
 getOptions().then(start)

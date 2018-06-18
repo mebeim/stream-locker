@@ -59,7 +59,7 @@
 			<section>
 				<div class="head">
 					<h1>Blacklist</h1>
-					<h2>This is your blacklist: add sites to it, and Stream Locker will do its job when you visit them. You can enable or disable a site, decide whether to capture videos to load them in the lightweight native player and whether to block popups. Please, only specify the <b>hostname</b> of the site.</h2>
+					<h2>This is your blacklist: add sites to it, and Stream Locker will do its job when you visit them. You can enable or disable a site, decide whether to capture videos to load them in the lightweight native player and whether to block popups. Please, only specify the <i>hostname</i> of the site.</h2>
 				</div>
 				<div class="content">
 					<table id="blacklist-head" class="blacklist-table">
@@ -84,7 +84,7 @@
 									</td>
 									<td><fancy-checkbox :use-default="true" v-model="s.captureVideo" @input="queueSave"></fancy-checkbox></td>
 									<td><fancy-checkbox :use-default="true" v-model="s.blockPopups" @input="queueSave"></fancy-checkbox></td>
-									<td class="remove" :title="'Remove ' + s.hostname" @click="removeBlacklistedSite(i)"></td>
+									<td class="remove" :title="'Remove ' + s.hostname" @click="removeBlacklistedSite(i, s.hostname)"></td>
 								</tr>
 							</tbody>
 						</table>
