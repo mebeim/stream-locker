@@ -63,7 +63,7 @@ function parseOptions(options) {
 		if ((site.enabled !== undefined && site.enabled) || globalOptions.enabled) {
 			blacklist.set(site.hostname, {
 				blockPopups: site.blockPopups !== undefined ? site.blockPopups : globalOptions.blockPopups,
-				playerInNewTab: site.playerInNewTab !== undefined ? site.playerInNewTab : globalOptions.playerInNewTab
+				captureVideo: site.captureVideo !== undefined ? site.captureVideo : globalOptions.captureVideo
 			})
 		}
 	})
@@ -84,15 +84,9 @@ function startPlayer(media) {
 	    url = '/src/player/player.html?'
 	        + 'src=' + encodeURIComponent(media.url)
 	        + '&mime=' + media.contentType
-			+ '&title=' + media.pageTitle
+	        + '&title=' + media.pageTitle
 
-	// TODO: create a cache with expiration of 500ms and check it before launching the player.
-
-	if (site && site.playerInNewTab) {
-		chrome.tabs.create({url}, tab => {
-			_log(`Launched player in new tab (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
-		})
-	} else {
+	if (site && site.captureVideo) {
 		chrome.tabs.update(media.tab.id, {url}, tab => {
 			_log(`Launched player (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
 		})
