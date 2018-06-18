@@ -12,7 +12,7 @@
  * General Public License for more details.
  */
 
-"use strict"
+'use strict'
 
 function getOptions() {
 	return new Promise((resolve, _) => {

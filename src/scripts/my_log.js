@@ -12,7 +12,7 @@
  * General Public License for more details.
  */
 
-"use strict"
+'use strict'
 
 const LOG_PROMPT = '>>>'
 

@@ -12,7 +12,7 @@
  * General Public License for more details.
  */
 
-"use strict"
+'use strict'
 
 function extractHostname(url) {
 	let partial = url.substring(url.indexOf('://') + 3),
