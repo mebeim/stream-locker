@@ -8,8 +8,6 @@
 
 Stream Locker helps you avoid the pain of watching videos in sites with clumsy players you're not familiar with and full of annoying ads and popups. Whenever you visit a blacklisted streaming site, as soon as you get to the video, it is captured by Stream Locker and loaded in the lightweight native HTML5 player of your browser, full size, in a new page without any additional element but the player, and with a set of intuitive keyboard shortcuts to play, pause, fast-forward, change volume, etc. In addition to this, any popup on blacklisted sites is automatically blocked. Try Stream Locker out, and you'll never want to watch another stream online without it!
 
-As of now, sites are blacklisted using a silly `blacklist.txt` file, which can be easily manually modified if the extension is installed from source. In the near future, the blacklist will be fully manageable through the extension's options.
-
 ### Player keyboard/mouse shortcuts
 
  - <kbd>space</kbd> or *mouse left click*: play/pause.
