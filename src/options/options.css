@@ -67,11 +67,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-input[type="checkbox"] {
-	margin: 0;
-	vertical-align: middle;
-}
-
 /***** SAVE POPUP NOTIFICATION *****/
 
 #save-popup {
@@ -107,6 +102,7 @@ input[type="checkbox"] {
 	padding: 1px;
 	background-color: #a50017;
 	color:white;
+	text-align: center;
 }
 
 .default-checkbox.checked {
@@ -218,6 +214,22 @@ section > .head {
 	background-color: var(--stream-locker-shadow);
 	border-radius: inherit;
 	box-shadow: var(--shadow);
+}
+
+/***** GLOBAL OPTIONS *****/
+
+#global label {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+#global label:last-child {
+	margin-right: 0px;
+}
+
+#global .default-checkbox {
+	width: 50px;
+	display: inline-block;
 }
 
 /***** BLACKLIST ****/

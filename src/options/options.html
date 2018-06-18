@@ -37,6 +37,27 @@
 
 			<section>
 				<div class="head">
+					<h1>Global options</h1>
+					<h2>These options are used as default for each site.</h2>
+				</div>
+				<div id="global" class="content">
+					<label>
+						<span>Enabled:</span>
+						<default-checkbox v-model="options.global.enabled" @input="queueSave"></default-checkbox>
+					</label>
+					<label>
+						<span>Capture videos:</span>
+						<default-checkbox v-model="options.global.captureVideo" @input="queueSave"></default-checkbox>
+					</label>
+					<label>
+						<span>Block popups:</span>
+						<default-checkbox v-model="options.global.blockPopups" @input="queueSave"></default-checkbox>
+					</label>
+				</div>
+			</section>
+
+			<section>
+				<div class="head">
 					<h1>Blacklist</h1>
 					<h2>This is your blacklist: add sites to it, and Stream Locker will do its job when you visit them. You can enable or disable a site, decide whether to capture videos to load them in the lightweight native player and whether to block popups. Please, only specify the <b>hostname</b> of the site.</h2>
 				</div>
