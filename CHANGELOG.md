@@ -4,6 +4,22 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.0][v1.0.0] — 2018-06-18
+
+Complete and working!
+
+First stable version of Stream Locker, finally fully customizable and working.
+
+ - Fully working options page to customize blacklist and global options.
+ - Removed useless built-in blacklist, now you chose which sites to blacklist.
+ - Added option to choose whether to capture videos in the native player or not.
+ - Removed pre-release option of opening player in new tab since it doesn't make much sense.
+
+Developer notes:
+
+ - Screenshots will soon be added to the relative extension store pages.
+ - Working on synchronized storage and options backup/restore.
+
 ### [0.1.2][v0.1.2-pre] (pre-release) — 2018-06-17
 
 Options.
