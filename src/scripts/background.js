@@ -191,13 +191,20 @@ function handleMessage(request, sender, respond) {
 	}
 }
 
+function handleStorageChange(changes, area) {
+	if (area == 'local') {
+		if ('options' in changes)
+			// TODO: maybe optimize this?
+			parseOptions(changes.options.newValue)
+	}
+}
+
 function start() {
 	chrome.tabs.onUpdated.addListener(checkTab)
 	chrome.tabs.onRemoved.addListener(unwatchTab)
 	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups)
 	chrome.runtime.onMessage.addListener(handleMessage)
-
-	// TODO: Watch for storage changes.
+	chrome.storage.onChanged.addListener(handleStorageChange)
 }
 
 // Is checking extensions the right way? Is xhr needed?

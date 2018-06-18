@@ -2,7 +2,6 @@
 	"blacklist": [
 		{"hostname": "justanexample.lul"},
 		{"hostname": "wstream.video"},
-		{"hostname": "www.flashx.to"},
 		{"hostname": "deltabit.co"},
 		{"hostname": "linkup.pro"},
 		{"hostname": "nowvideo.club"},
@@ -14,7 +13,6 @@
 		{"hostname": "suspents.info"},
 		{"hostname": "turbovid.me"},
 		{"hostname": "www.vidgg.to"},
-		{"hostname": "wstream.video"},
 		{"hostname": "vidabc.com"},
 		{"hostname": "vidtome.co"},
 		{"hostname": "vidtome.stream"},
@@ -36,6 +34,6 @@
 	"global": {
 		"enabled": true,
 		"blockPopups": true,
-		"captureVideo": false
+		"captureVideo": true
 	}
 }
