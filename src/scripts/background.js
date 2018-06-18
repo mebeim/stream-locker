@@ -199,6 +199,11 @@ function handleStorageChange(changes, area) {
 	}
 }
 
+function handleInstall(details) {
+	if (details.reason == 'install')
+		chrome.tabs.create({url: '/src/options/options.html'})
+}
+
 function start() {
 	chrome.tabs.onUpdated.addListener(checkTab)
 	chrome.tabs.onRemoved.addListener(unwatchTab)
@@ -218,4 +223,5 @@ const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*',
       blacklist               = new Map(),
       globalOptions           = new Object()
 
+chrome.runtime.onInstalled.addListener(handleInstall)
 loadStorage().then(parseOptions).then(start)
