@@ -299,8 +299,8 @@ section > .head {
 	background-color: var(--stream-locker-shadow);
 }
 
-#blacklist tr.disabled > .hostname {
-    text-decoration: line-through;
+#blacklist tr.disabled .hostname .editable {
+	text-decoration: line-through;
 }
 
 #blacklist .remove {
@@ -340,8 +340,19 @@ section > .head {
 .editable[contenteditable="true"] {
 	outline: white dotted 1px;
 	outline-style: dotted;
+	text-decoration: none !important;
 }
 
 .editable[contenteditable="true"]:focus {
 	color: var(--stream-locker-yellow);
+}
+
+#blacklist-add {
+	margin-top: 10px;
+	text-align: center;
+}
+
+#blacklist-add input {
+	font-size: 16px;
+	font-family: Lato;
 }

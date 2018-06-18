@@ -30,9 +30,9 @@ function animateSavePopup() {
 }
 
 function saveAll() {
-	chrome.storage.local.set({options})
-	console.log('Options saved.')
-	animateSavePopup()
+	chrome.storage.local.set({options}, () => {
+		animateSavePopup()
+	})
 }
 
 function queueSave() {
@@ -45,12 +45,36 @@ function fixHostname(h) {
 	return h.replace(/\s/g, '')
 }
 
+function addBlacklistedSite() {
+	if (currentlyEditing != null)
+		saveBlacklistedSite(currentlyEditing)
+
+	let bc = document.getElementById('blacklist-container')
+
+	options.blacklist.push({hostname: ''})
+
+	this.$nextTick(() => {
+		bc.scrollTop = bc.scrollHeight
+		editBlacklistedSite(options.blacklist.length - 1)
+	})
+}
+
 function removeBlacklistedSite(i) {
+	if (currentlyEditing != null)
+		saveBlacklistedSite(currentlyEditing)
+
 	options.blacklist.splice(i, 1)
 	queueSave()
 }
 
 function editBlacklistedSite(i, el) {
+	if (!el)
+		el = document.querySelectorAll('#blacklist tr .hostname .edit')[i]
+
+	if (el.textContent == 'Edit' && currentlyEditing != null)
+		saveBlacklistedSite(currentlyEditing, null, el)
+	currentlyEditing = i
+
 	let hostname = el.parentElement.querySelector('.editable')
 
 	if (el.textContent == 'Edit') {
@@ -63,7 +87,9 @@ function editBlacklistedSite(i, el) {
 }
 
 function saveBlacklistedSite(i, el, btn) {
-	el.setAttribute('contenteditable', false)
+	if (!el)
+		el = document.querySelectorAll('#blacklist tr .hostname .editable')[i]
+	el.removeAttribute('contenteditable')
 	el.blur()
 
 	if (!btn)
@@ -73,12 +99,16 @@ function saveBlacklistedSite(i, el, btn) {
 	let newHostname = fixHostname(el.textContent)
 
 	if (newHostname) {
-		options.blacklist[i].hostname = newHostname
-		el.textContent = newHostname
-		queueSave()
+		if (options.blacklist[i].hostname != newHostname) {
+			options.blacklist[i].hostname = newHostname
+			el.textContent = newHostname
+			queueSave()
+		}
 	} else {
 		el.textContent = options.blacklist[i].hostname
 	}
+
+	currentlyEditing = null
 }
 
 function start() {
@@ -86,7 +116,7 @@ function start() {
 	Vue.component('default-checkbox', {
 		props: {
 			value: {},
-			values: {
+			states: {
 				default: () => ['Default', 'YES', 'NO']
 			}
 		},
@@ -100,16 +130,16 @@ function start() {
 			</div>
 		`,
 		created: function () {
-			this.states = [undefined, true, false]
+			this.values = [undefined, true, false]
 			this.map = {}
 
 			for (let i = 0; i < this.values.length; i++)
-				this.map[this.states[i]] = this.values[i]
+				this.map[this.values[i]] = this.states[i]
 		},
 		methods: {
 			getNext: function() {
-				let i = (this.states.indexOf(this.value) + 1) % this.states.length
-				return this.states[i]
+				let i = (this.values.indexOf(this.value) + 1) % this.values.length
+				return this.values[i]
 			}
 		}
 	})
@@ -121,6 +151,7 @@ function start() {
 			extManifest: Object.freeze(chrome.runtime.getManifest()),
 		},
 		methods: {
+			addBlacklistedSite,
 			removeBlacklistedSite,
 			editBlacklistedSite,
 			saveBlacklistedSite,
@@ -132,6 +163,7 @@ function start() {
 let options = null,
 	saveTimeout = null,
 	savePopupTimeout = null,
+	currentlyEditing = null,
 	savePopup = document.getElementById('save-popup')
 
 getOptions().then(start)
