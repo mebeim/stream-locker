@@ -112,16 +112,21 @@ function saveBlacklistedSite(i, el, btn) {
 }
 
 function start() {
-	// Custom "checkbox" which also has a default state (i.e. undefined).
-	Vue.component('default-checkbox', {
+	// Custom "checkbox" which can halso have a default value (i.e. undefined).
+	Vue.component('fancy-checkbox', {
 		props: {
 			value: {},
+			useDefault: {
+				default: false
+			},
 			states: {
-				default: () => ['Default', 'YES', 'NO']
+				default: function() {
+					return this.useDefault ? ['Default', 'YES', 'NO'] : ['YES', 'NO']
+				}
 			}
 		},
 		template: `
-			<div class="default-checkbox"
+			<div class="fancy-checkbox"
 				:value="value"
 				:class="{checked: value === true, default: value === undefined}"
 				@click="$emit('input', getNext())"
@@ -130,7 +135,11 @@ function start() {
 			</div>
 		`,
 		created: function () {
-			this.values = [undefined, true, false]
+			if (this.useDefault)
+				this.values = [undefined, true, false]
+			else
+				this.values = [true, false]
+
 			this.map = {}
 
 			for (let i = 0; i < this.values.length; i++)

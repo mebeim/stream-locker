@@ -43,15 +43,15 @@
 				<div id="global" class="content">
 					<label>
 						<span>Enabled:</span>
-						<default-checkbox v-model="options.global.enabled" @input="queueSave"></default-checkbox>
+						<fancy-checkbox v-model="options.global.enabled" @input="queueSave"></fancy-checkbox>
 					</label>
 					<label>
 						<span>Capture videos:</span>
-						<default-checkbox v-model="options.global.captureVideo" @input="queueSave"></default-checkbox>
+						<fancy-checkbox v-model="options.global.captureVideo" @input="queueSave"></fancy-checkbox>
 					</label>
 					<label>
 						<span>Block popups:</span>
-						<default-checkbox v-model="options.global.blockPopups" @input="queueSave"></default-checkbox>
+						<fancy-checkbox v-model="options.global.blockPopups" @input="queueSave"></fancy-checkbox>
 					</label>
 				</div>
 			</section>
@@ -77,13 +77,13 @@
 						<table id="blacklist" class="blacklist-table">
 							<tbody>
 								<tr v-for="(s, i) in options.blacklist" :key="s.hostname" :class="{even: i % 2 == 0, disabled: s.enabled !== undefined ? !s.enabled : !options.global.enabled}">
-									<td><default-checkbox v-model="s.enabled" @input="queueSave"></default-checkbox></td>
+									<td><fancy-checkbox :use-default="true" v-model="s.enabled" @input="queueSave"></fancy-checkbox></td>
 									<td class="hostname" spellcheck="false">
 										<span class="editable" @keydown.enter.prevent="saveBlacklistedSite(i, $event.target)">{{s.hostname}}</span>
 										<span class="edit" @click="editBlacklistedSite(i, $event.target)">Edit</span>
 									</td>
-									<td><default-checkbox v-model="s.captureVideo" @input="queueSave"></default-checkbox></td>
-									<td><default-checkbox v-model="s.blockPopups" @input="queueSave"></default-checkbox></td>
+									<td><fancy-checkbox :use-default="true" v-model="s.captureVideo" @input="queueSave"></fancy-checkbox></td>
+									<td><fancy-checkbox :use-default="true" v-model="s.blockPopups" @input="queueSave"></fancy-checkbox></td>
 									<td class="remove" :title="'Remove ' + s.hostname" @click="removeBlacklistedSite(i)"></td>
 								</tr>
 							</tbody>

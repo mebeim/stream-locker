@@ -94,7 +94,7 @@ a:hover {
 
 /***** CUSTOM COMPONENTS *****/
 
-.default-checkbox {
+.fancy-checkbox {
 	user-select: none;
 	-moz-user-select: none;
 	cursor: pointer;
@@ -105,15 +105,15 @@ a:hover {
 	text-align: center;
 }
 
-.default-checkbox.checked {
+.fancy-checkbox.checked {
 	background-color: #005d29;
 }
 
-.default-checkbox.default {
+.fancy-checkbox.default {
 	background-color: #905050;
 	color: #f3f3f3;
 }
-.default-checkbox:hover {
+.fancy-checkbox:hover {
 	background-color: rgba(0, 0, 0, 0.7);
 	color:var(--stream-locker-yellow);
 }
@@ -227,7 +227,7 @@ section > .head {
 	margin-right: 0px;
 }
 
-#global .default-checkbox {
+#global .fancy-checkbox {
 	width: 50px;
 	display: inline-block;
 }
