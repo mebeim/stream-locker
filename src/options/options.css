@@ -368,3 +368,12 @@ section > .head {
 	font-size: 16px;
 	font-family: Lato;
 }
+
+#blacklist-empty {
+	background-color: var(--stream-locker-shadow);
+	display: none;
+}
+
+#blacklist.empty #blacklist-empty {
+	display: table-row;
+}
