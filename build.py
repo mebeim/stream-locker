@@ -168,9 +168,9 @@ def deploy_firefox(build_dir):
 	bdir, sdir = get_browser_dirs(build_dir, 'firefox')
 	web_ext_sign(bdir, sdir, 'firefox')
 
-def deploy(target, build_dir, tag_name):
-	if tag_name[-4:] == '-pre':
-		say('[Deploy] Pre release, skipping deploy.\n')
+def deploy(target, build_dir, prerelease):
+	if prerelease:
+		say('[Deploy] Pre-release, skipping deploy.\n')
 		return
 
 	if target not in TARGETS.keys():
@@ -271,20 +271,22 @@ def get_changelog(fname):
 
 	return head + '\n\n' + body
 
-def release_create(tag_name):
+def release_create(tag_name, prerelease):
 	import github3
 
 	check_releasable(tag_name)
 
 	user, repo = ENV_TRAVIS_REPO_SLUG.split('/')
 	release_name = ENV_GH_RELEASE_BASENAME + ' ' + tag_name
-	release_is_pre = any(s in tag_name for s in ('alpha', 'beta', 'pre'))
+	release_body = None
+	release_is_pre = prerelease or any(s in tag_name for s in ('-alpha', '-beta'))
 
 	say('[Release] Releasing {}.\n', release_name)
 
-	say('[Release] Parsing changelog...\r')
-	release_body = get_changelog('CHANGELOG.md')
-	say('[Release] Parsing changelog... done.\n')
+	if not prerelease:
+		say('[Release] Parsing changelog...\r')
+		release_body = get_changelog('CHANGELOG.md')
+		say('[Release] Parsing changelog... done.\n')
 
 	gh_repo    = github3.login(token=ENV_GH_TOKEN).repository(user, repo)
 	gh_release = None
@@ -350,16 +352,18 @@ if __name__ == '__main__':
 
 	build(git_repo, args.target, args.build_dir)
 	tag_name = get_head_tag_name(git_repo)
-
-	if args.release:
-		gh_release = release_create(tag_name)
-
-	if args.deploy:
-		deploy(args.target, args.build_dir, tag_name)
+	release_is_pre = tag_name[-4:] == '-pre'
 
 	clean_build_dir(args.build_dir)
 	rename_assets(args.build_dir)
 
 	if args.release:
+		gh_release = release_create(tag_name, release_is_pre)
 		assets = get_assets(args.build_dir, args.deploy)
 		release_upload_assets(gh_release, assets)
+
+	if args.deploy:
+		if release_is_pre:
+			say('[Deploy] Pre release, skipping deploy.\n')
+		else:
+			deploy(args.target, args.build_dir, release_is_pre)
