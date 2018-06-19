@@ -352,10 +352,13 @@ if __name__ == '__main__':
 
 	build(git_repo, args.target, args.build_dir)
 	tag_name = get_head_tag_name(git_repo)
-	release_is_pre = tag_name[-4:] == '-pre'
+	release_is_pre = False
 
 	clean_build_dir(args.build_dir)
 	rename_assets(args.build_dir)
+
+	if tag_name:
+		release_is_pre = tag_name[-4:] == '-pre'
 
 	if args.release:
 		gh_release = release_create(tag_name, release_is_pre)
@@ -363,7 +366,4 @@ if __name__ == '__main__':
 		release_upload_assets(gh_release, assets)
 
 	if args.deploy:
-		if release_is_pre:
-			say('[Deploy] Pre release, skipping deploy.\n')
-		else:
-			deploy(args.target, args.build_dir, release_is_pre)
+		deploy(args.target, args.build_dir, release_is_pre)

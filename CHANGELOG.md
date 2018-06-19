@@ -20,16 +20,6 @@ Developer notes:
  - Screenshots will soon be added to the relative extension store pages.
  - Working on synchronized storage and options backup/restore.
 
-### [0.1.2][v0.1.2-pre] (pre-release) — 2018-06-17
-
-Options.
-
- - Added first working version of options page with editable blacklist.
-
-Developer notes:
-
-Man if I love [Vue.js](https://vuejs.org/)!
-
 ### [0.1.1][v0.1.1-beta] (beta) — 2018-06-10
 
 Published!
@@ -100,7 +90,6 @@ First public release.
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
  [v1.0.0]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.0
- [v0.1.2-pre]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.2-pre
  [v0.1.1-beta]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.1-beta
  [v0.1.0]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.0
  [v0.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v0.0.5
