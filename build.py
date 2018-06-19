@@ -126,6 +126,25 @@ def web_ext_sign(bdir, sdir, browser_name):
 
 	say('[Deploy/{}] Done.\n', browser_name)
 
+def clean_build_dir(build_dir):
+	for target in filter(lambda k: k != 'all', TARGETS.keys()):
+		_, sdir = get_browser_dirs(build_dir, target)
+
+		if os.path.isdir(sdir):
+			shutil.rmtree(sdir)
+
+def rename_assets(build_dir):
+	for target in filter(lambda k: k != 'all', TARGETS.keys()):
+		bdir = get_browser_dirs(build_dir, target)[0]
+
+		if os.path.isdir(bdir):
+			for fname in os.listdir(bdir):
+				ext        = fname[fname.rfind('.'):]
+				clean_name = re.sub(r'([\w_]+-(\d+\.)+\d).*', r'\1', fname)
+				newfname   = clean_name + '-' + target + ext
+
+				os.rename(os.path.join(bdir, fname),  os.path.join(bdir, newfname))
+
 def build_chrome(build_dir):
 	bdir, sdir = create_browser_dirs(build_dir, 'chrome')
 	web_ext_build(bdir, sdir, 'chrome')
@@ -158,6 +177,9 @@ def build(repo, target, build_dir):
 	for builder in TARGETS[target]['build']:
 		builder(build_dir)
 
+	clean_build_dir(build_dir)
+	rename_assets(build_dir)
+
 	say('[Build] Done.\n')
 
 def deploy_chrome(_):
@@ -168,40 +190,16 @@ def deploy_firefox(build_dir):
 	bdir, sdir = get_browser_dirs(build_dir, 'firefox')
 	web_ext_sign(bdir, sdir, 'firefox')
 
-def deploy(target, build_dir, prerelease):
-	if prerelease:
-		say('[Deploy] Pre-release, skipping deploy.\n')
+def deploy(tag_name, target, build_dir, prerelease):
+	if not check_deployable(tag_name, target, prerelease):
 		return
-
-	if target not in TARGETS.keys():
-		say('[Deploy] Error: unknown target "{}", aborting.\n', target)
-		exit(1)
 
 	say('[Deploy] Target: {}.\n', target)
 
 	for deployer in TARGETS[target]['deploy']:
 		deployer(build_dir)
 
-def clean_build_dir(build_dir):
-	for target in filter(lambda k: k != 'all', TARGETS.keys()):
-		_, sdir = get_browser_dirs(build_dir, target)
-
-		if os.path.isdir(sdir):
-			shutil.rmtree(sdir)
-
-def rename_assets(build_dir):
-	for target in filter(lambda k: k != 'all', TARGETS.keys()):
-		bdir = get_browser_dirs(build_dir, target)[0]
-
-		if os.path.isdir(bdir):
-			for fname in os.listdir(bdir):
-				ext        = fname[fname.rfind('.'):]
-				clean_name = re.sub(r'([\w_]+-(\d+\.)+\d).*', r'\1', fname)
-				newfname   = clean_name + '-' + target + ext
-
-				os.rename(os.path.join(bdir, fname),  os.path.join(bdir, newfname))
-
-def get_assets(build_dir, deployed):
+def get_assets(build_dir):
 	say('[Release] Gathering assets...\r')
 
 	assets = []
@@ -235,16 +233,41 @@ def check_releasable(tag_name):
 		exit(1)
 
 	if ENV_TRAVIS_PR == '1':
-		say('[Release] Skipping release: this is a pull request.')
-		exit(0)
+		say('[Release] Skipping release: this is a pull request.\n')
+		return False
 
 	if ENV_TRAVIS_BRANCH != ENV_GH_RELEASE_BRANCH:
-		say('[Release] Skipping release: current branch ({}) is not designed release branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
-		exit(0)
+		say('[Release] Skipping release: current branch ({}) is not designed release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
+		return False
 
 	if tag_name is None:
 		say('[Release] Skipping release: HEAD not pointing to a tag.\n')
-		exit(0)
+		return False
+
+	return True
+
+def check_deployable(tag_name, target, prerelease):
+	if prerelease:
+		say('[Deploy] Skipping deploy: pre-release.\n')
+		return False
+
+	if ENV_TRAVIS_PR == '1':
+		say('[Deploy] Skipping deploy: this is a pull request.\n')
+		return False
+
+	if ENV_TRAVIS_BRANCH != ENV_GH_RELEASE_BRANCH:
+		say('[Deploy] Skipping deploy: current branch ({}) is not designed release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
+		return False
+
+	if tag_name is None:
+		say('[Deploy] Skipping deploy: HEAD not pointing to a tag.\n')
+		return False
+
+	if target not in TARGETS.keys():
+		say('[Deploy] Error: unknown target "{}", aborting.\n', target)
+		exit(1)
+
+	return True
 
 def get_changelog(fname):
 	changelog = []
@@ -271,10 +294,19 @@ def get_changelog(fname):
 
 	return head + '\n\n' + body
 
-def release_create(tag_name, prerelease):
+def release_upload_assets(gh_release, assets):
+	for fname, mimetype in assets:
+		say('[Release/upload] Uploading {}...\r', fname)
+		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
+		say('[Release/upload] Uploading {}... done.\n', fname)
+
+	say('[Release] Done.\n')
+
+def release(tag_name, build_dir, prerelease):
 	import github3
 
-	check_releasable(tag_name)
+	if not check_releasable(tag_name):
+		return None
 
 	user, repo = ENV_TRAVIS_REPO_SLUG.split('/')
 	release_name = ENV_GH_RELEASE_BASENAME + ' ' + tag_name
@@ -300,15 +332,8 @@ def release_create(tag_name, prerelease):
 		gh_release = gh_repo.create_release(tag_name, name=release_name, body=release_body, prerelease=release_is_pre)
 		say('[Release] Creating release... done.\n')
 
-	return gh_release
-
-def release_upload_assets(gh_release, assets):
-	for fname, mimetype in assets:
-		say('[Release/upload] Uploading {}...\r', fname)
-		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
-		say('[Release/upload] Uploading {}... done.\n', fname)
-
-	say('[Release] Done.\n')
+	assets = get_assets(build_dir)
+	release_upload_assets(gh_release, assets)
 
 ###############################################################
 
@@ -335,16 +360,20 @@ TARGETS = {
 }
 
 if __name__ == '__main__':
-	ENV_GH_TOKEN            = os.getenv('GH_OAUTH_TOKEN')
-	ENV_GH_RELEASE_BASENAME = os.getenv('GH_RELEASE_BASENAME')
-	ENV_GH_RELEASE_BRANCH   = os.getenv('GH_RELEASE_BRANCH')
+	ENV_GH_TOKEN             = os.getenv('GH_OAUTH_TOKEN')
+	ENV_GH_RELEASE_BASENAME  = os.getenv('GH_RELEASE_BASENAME')
+	ENV_GH_RELEASE_BRANCH    = os.getenv('GH_RELEASE_BRANCH')
 
-	ENV_AMO_JWT_ISSUER      = os.getenv('AMO_JWT_ISSUER')
-	ENV_AMO_JWT_SECRET      = os.getenv('AMO_JWT_SECRET')
+	ENV_AMO_JWT_ISSUER       = os.getenv('AMO_JWT_ISSUER')
+	ENV_AMO_JWT_SECRET       = os.getenv('AMO_JWT_SECRET')
 
-	ENV_TRAVIS_BRANCH       = os.getenv('TRAVIS_BRANCH')
-	ENV_TRAVIS_PR           = os.getenv('TRAVIS_PULL_REQUEST')
-	ENV_TRAVIS_REPO_SLUG    = os.getenv('TRAVIS_REPO_SLUG')
+	ENV_GOOGLE_CLIENT_ID     = os.getenv('GOOGLE_CLIENT_ID')
+	ENV_GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+	ENV_GOOGLE_CLIENT_CODE   = os.getenv('GOOGLE_CLIENT_CODE')
+
+	ENV_TRAVIS_BRANCH        = os.getenv('TRAVIS_BRANCH')
+	ENV_TRAVIS_PR            = os.getenv('TRAVIS_PULL_REQUEST')
+	ENV_TRAVIS_REPO_SLUG     = os.getenv('TRAVIS_REPO_SLUG')
 
 	args       = get_args()
 	git_repo   = git.Repo()
@@ -352,18 +381,10 @@ if __name__ == '__main__':
 
 	build(git_repo, args.target, args.build_dir)
 	tag_name = get_head_tag_name(git_repo)
-	release_is_pre = False
-
-	clean_build_dir(args.build_dir)
-	rename_assets(args.build_dir)
-
-	if tag_name:
-		release_is_pre = tag_name[-4:] == '-pre'
+	release_is_pre = (tag_name[-4:] == '-pre') if tag_name else False
 
 	if args.release:
-		gh_release = release_create(tag_name, release_is_pre)
-		assets = get_assets(args.build_dir, args.deploy)
-		release_upload_assets(gh_release, assets)
+		release(tag_name, args.build_dir, release_is_pre)
 
 	if args.deploy:
-		deploy(args.target, args.build_dir, release_is_pre)
+		deploy(tag_name, args.target, args.build_dir, release_is_pre)
