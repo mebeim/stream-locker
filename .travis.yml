@@ -15,5 +15,10 @@ script:
   - export GH_RELEASE_BRANCH='master' GH_RELEASE_BASENAME='Stream Locker'
   - ./build.py --release --deploy "$STREAM_LOCKER_TARGET"
 
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - node_modules
+
 notifications:
   email: false
