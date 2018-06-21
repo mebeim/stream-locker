@@ -7,9 +7,9 @@ env:
   - STREAM_LOCKER_TARGET='firefox'
 
 install:
-  - sudo pip install --upgrade pip
-  - pip install GitPython github3.py
-  - npm install -g web-ext
+  - sudo pip install -U pip
+  - pip install -U GitPython github3.py
+  - npm i -g web-ext
 
 script:
   - export GH_RELEASE_BRANCH='master' GH_RELEASE_BASENAME='Stream Locker'
