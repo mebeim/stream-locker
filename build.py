@@ -367,10 +367,6 @@ if __name__ == '__main__':
 	ENV_AMO_JWT_ISSUER       = os.getenv('AMO_JWT_ISSUER')
 	ENV_AMO_JWT_SECRET       = os.getenv('AMO_JWT_SECRET')
 
-	ENV_GOOGLE_CLIENT_ID     = os.getenv('GOOGLE_CLIENT_ID')
-	ENV_GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-	ENV_GOOGLE_CLIENT_CODE   = os.getenv('GOOGLE_CLIENT_CODE')
-
 	ENV_TRAVIS_BRANCH        = os.getenv('TRAVIS_BRANCH')
 	ENV_TRAVIS_PR            = os.getenv('TRAVIS_PULL_REQUEST')
 	ENV_TRAVIS_REPO_SLUG     = os.getenv('TRAVIS_REPO_SLUG')
