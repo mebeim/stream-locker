@@ -24,6 +24,14 @@ def get_args():
 
 	return parser.parse_args()
 
+def get_head_tag_name(repo):
+	tag_name = repo.git.describe('--tags')
+
+	for tag in repo.tags:
+		if tag.name == tag_name:
+			return tag_name
+	return None
+
 def merge_json(a, b, out):
 	with open(a, 'r') as f:
 		ja = json.load(f)
@@ -47,6 +55,31 @@ def copy_source(dest_dir):
 		else:
 			shutil.copy2(fname, dest_dir)
 
+def parse_changelog(fname):
+	changelog = []
+	ok = False
+
+	for l in map(str.strip, open(fname, 'r').readlines()):
+		if ok and (l[:3] == '###' or l[:3] == '---'):
+			break
+
+		if l[:3] == '###':
+			ok = True
+
+		if ok:
+			changelog.append(l)
+
+	h    = changelog.pop(0)
+	date = datetime.strptime(h[h.rfind('—')+len('—'):].strip(), '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
+
+	while not changelog[0]:
+		changelog.pop(0)
+
+	head = date + ' — ' + '**' + changelog[0] + '**'
+	body = '\n'.join(changelog[1:]).strip('\n')
+
+	return head + '\n\n' + body
+
 def get_browser_dirs(build_dir, browser_name):
 	browser_dir     = os.path.join(build_dir, browser_name)
 	browser_src_dir = os.path.join(browser_dir, 'src')
@@ -69,63 +102,6 @@ def create_browser_dirs(build_dir, browser_name):
 
 	return bdir, sdir
 
-def web_ext_build(bdir, sdir, browser_name):
-	say('[Build/{}] Running web-ext build...\r', browser_name)
-
-	sp = subprocess.Popen(
-		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
-		stdout=subprocess.PIPE,
-		stderr=subprocess.STDOUT
-	)
-
-	out = sp.communicate()[0]
-
-	say("[Build/{}] Building extension with 'web-ext build'...\r", browser_name)
-
-	if sp.returncode == 0:
-		say("[Build/{}] Building extension with 'web-ext build'... done\n", browser_name)
-	else:
-		say("[Build/{}] Error: 'web-ext build' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
-		say(out)
-		exit(1)
-
-	say('[Build/{}] Done.\n', browser_name)
-
-def web_ext_sign(bdir, sdir, browser_name):
-	if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
-		say('[Deploy/{}] Error: missing one or more needed environment variables, aborting.\n', browser_name)
-		exit(1)
-
-	say("[Deploy/{}] Signing extension with 'web-ext sign'...\r", browser_name)
-
-	sp = subprocess.Popen(
-		[
-			'web-ext', 'sign',
-			'--api-key=' + ENV_AMO_JWT_ISSUER,
-			'--api-secret=' + ENV_AMO_JWT_SECRET,
-			'--source-dir=' + sdir,
-			'--artifacts-dir=' + bdir
-		],
-		stdout=subprocess.PIPE,
-		stderr=subprocess.STDOUT
-	)
-
-	out = sp.communicate()[0]
-
-	if sp.returncode != 0:
-		if 'Version already exists' in out:
-			say("[Deploy/{}] Signing extension with 'web-ext sign'... version already signed.\n", browser_name)
-		elif 'submitted for review' in out and 'It passed validation' in out:
-			say("[Deploy/{}] Signing extension with 'web-ext sign'... submitted for review, not directly signed.\n", browser_name)
-	elif sp.returncode == 0:
-		say("[Deploy/{}] Signing extension with 'web-ext sign'... done.\n", browser_name)
-	else:
-		say("[Deploy/{}] Error: 'web-ext sign' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
-		say(out)
-		exit(1)
-
-	say('[Deploy/{}] Done.\n', browser_name)
-
 def clean_build_dir(build_dir):
 	for target in filter(lambda k: k != 'all', TARGETS.keys()):
 		_, sdir = get_browser_dirs(build_dir, target)
@@ -144,60 +120,6 @@ def rename_assets(build_dir):
 				newfname   = clean_name + '-' + target + ext
 
 				os.rename(os.path.join(bdir, fname),  os.path.join(bdir, newfname))
-
-def build_chrome(build_dir):
-	bdir, sdir = create_browser_dirs(build_dir, 'chrome')
-	web_ext_build(bdir, sdir, 'chrome')
-
-def build_firefox(build_dir):
-	bdir, sdir = create_browser_dirs(build_dir, 'firefox')
-	web_ext_build(bdir, sdir, 'firefox')
-
-def build(repo, target, build_dir):
-	if os.getcwd() == os.path.abspath(build_dir):
-		say('[Build] Error: cannot build in source directory.\n')
-		exit(1)
-
-	if not os.path.isdir(build_dir):
-		try:
-			os.makedirs(build_dir)
-		except:
-			say('[Build] Error: unable to create build directory "{}", aborting.\n', build_dir)
-			exit(1)
-
-	tag_name = repo.git.describe('--tags')
-
-	if target not in TARGETS.keys():
-		say('[Build] Error: unknown target "{}", aborting.\n', target)
-		exit(1)
-
-	say('[Build] Target: {}.\n', target)
-	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
-
-	for builder in TARGETS[target]['build']:
-		builder(build_dir)
-
-	clean_build_dir(build_dir)
-	rename_assets(build_dir)
-
-	say('[Build] Done.\n')
-
-def deploy_chrome(_):
-	say("[Deploy/chrome] Unfortunately Google doesn't like automatic deployment :(\n")
-	say('[Deploy/chrome] Done.\n')
-
-def deploy_firefox(build_dir):
-	bdir, sdir = get_browser_dirs(build_dir, 'firefox')
-	web_ext_sign(bdir, sdir, 'firefox')
-
-def deploy(tag_name, target, build_dir, prerelease):
-	if not check_deployable(tag_name, target, prerelease):
-		return
-
-	say('[Deploy] Target: {}.\n', target)
-
-	for deployer in TARGETS[target]['deploy']:
-		deployer(build_dir)
 
 def get_assets(build_dir):
 	say('[Release] Gathering assets...\r')
@@ -218,14 +140,6 @@ def get_assets(build_dir):
 		say('[Release] Gathering assets... no assets found.\n')
 
 	return assets
-
-def get_head_tag_name(repo):
-	tag_name = repo.git.describe('--tags')
-
-	for tag in repo.tags:
-		if tag.name == tag_name:
-			return tag_name
-	return None
 
 def check_releasable(tag_name):
 	if not (ENV_GH_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_GH_RELEASE_BRANCH and ENV_TRAVIS_REPO_SLUG and ENV_TRAVIS_BRANCH and ENV_TRAVIS_PR):
@@ -269,38 +183,105 @@ def check_deployable(tag_name, target, prerelease):
 
 	return True
 
-def get_changelog(fname):
-	changelog = []
-	ok = False
+def web_ext_build(bdir, sdir, browser_name):
+	say('[Build/{}] Running web-ext build...\r', browser_name)
 
-	for l in map(str.strip, open(fname, 'r').readlines()):
-		if ok and (l[:3] == '###' or l[:3] == '---'):
-			break
+	sp = subprocess.Popen(
+		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT
+	)
 
-		if l[:3] == '###':
-			ok = True
+	out = sp.communicate()[0]
 
-		if ok:
-			changelog.append(l)
+	say("[Build/{}] Building extension with 'web-ext build'...\r", browser_name)
 
-	h    = changelog.pop(0)
-	date = datetime.strptime(h[h.rfind('—')+len('—'):].strip(), '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
+	if sp.returncode == 0:
+		say("[Build/{}] Building extension with 'web-ext build'... done\n", browser_name)
+	else:
+		say("[Build/{}] Error: 'web-ext build' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
+		say(out)
+		exit(1)
 
-	while not changelog[0]:
-		changelog.pop(0)
+	say('[Build/{}] Done.\n', browser_name)
 
-	head = date + ' — ' + '**' + changelog[0] + '**'
-	body = '\n'.join(changelog[1:]).strip('\n')
+def build_chrome(build_dir):
+	bdir, sdir = create_browser_dirs(build_dir, 'chrome')
+	web_ext_build(bdir, sdir, 'chrome')
 
-	return head + '\n\n' + body
+def build_firefox(build_dir):
+	bdir, sdir = create_browser_dirs(build_dir, 'firefox')
+	web_ext_build(bdir, sdir, 'firefox')
 
-def release_upload_assets(gh_release, assets):
-	for fname, mimetype in assets:
-		say('[Release/upload] Uploading {}...\r', fname)
-		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
-		say('[Release/upload] Uploading {}... done.\n', fname)
+def deploy_chrome(_):
+	say("[Deploy/chrome] Unfortunately Google doesn't like automatic deployment :(\n")
+	say('[Deploy/chrome] Done.\n')
 
-	say('[Release] Done.\n')
+def deploy_firefox(build_dir):
+	if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
+		say('[Deploy/firefox] Error: missing one or more needed environment variables, aborting.\n')
+		exit(1)
+
+	bdir, sdir = get_browser_dirs(build_dir, 'firefox')
+
+	say("[Deploy/firefox] Signing extension with 'web-ext sign'...\r")
+
+	sp = subprocess.Popen(
+		[
+			'web-ext', 'sign',
+			'--api-key=' + ENV_AMO_JWT_ISSUER,
+			'--api-secret=' + ENV_AMO_JWT_SECRET,
+			'--source-dir=' + sdir,
+			'--artifacts-dir=' + bdir
+		],
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT
+	)
+
+	out = sp.communicate()[0]
+
+	if sp.returncode != 0:
+		if 'Version already exists' in out:
+			say("[Deploy/firefox] Signing extension with 'web-ext sign'... version already signed.\n")
+		elif 'submitted for review' in out and 'It passed validation' in out:
+			say("[Deploy/firefox] Signing extension with 'web-ext sign'... submitted for review, not directly signed.\n")
+	elif sp.returncode == 0:
+		say("[Deploy/firefox] Signing extension with 'web-ext sign'... done.\n")
+	else:
+		say("[Deploy/firefox] Error: 'web-ext sign' exited with code {}, aborting.\n\n", sp.returncode)
+		say(out)
+		exit(1)
+
+	say('[Deploy/firefox] Done.\n')
+
+def build(repo, target, build_dir):
+	if os.getcwd() == os.path.abspath(build_dir):
+		say('[Build] Error: cannot build in source directory.\n')
+		exit(1)
+
+	if not os.path.isdir(build_dir):
+		try:
+			os.makedirs(build_dir)
+		except:
+			say('[Build] Error: unable to create build directory "{}", aborting.\n', build_dir)
+			exit(1)
+
+	tag_name = repo.git.describe('--tags')
+
+	if target not in TARGETS.keys():
+		say('[Build] Error: unknown target "{}", aborting.\n', target)
+		exit(1)
+
+	say('[Build] Target: {}.\n', target)
+	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
+
+	for builder in TARGETS[target]['build']:
+		builder(build_dir)
+
+	clean_build_dir(build_dir)
+	rename_assets(build_dir)
+
+	say('[Build] Done.\n')
 
 def release(tag_name, build_dir, prerelease):
 	import github3
@@ -317,7 +298,7 @@ def release(tag_name, build_dir, prerelease):
 
 	if not prerelease:
 		say('[Release] Parsing changelog...\r')
-		release_body = get_changelog('CHANGELOG.md')
+		release_body = parse_changelog('CHANGELOG.md')
 		say('[Release] Parsing changelog... done.\n')
 
 	gh_repo    = github3.login(token=ENV_GH_TOKEN).repository(user, repo)
@@ -332,8 +313,21 @@ def release(tag_name, build_dir, prerelease):
 		gh_release = gh_repo.create_release(tag_name, name=release_name, body=release_body, prerelease=release_is_pre)
 		say('[Release] Creating release... done.\n')
 
-	assets = get_assets(build_dir)
-	release_upload_assets(gh_release, assets)
+	for fname, mimetype in get_assets(build_dir):
+		say('[Release/upload] Uploading {}...\r', fname)
+		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
+		say('[Release/upload] Uploading {}... done.\n', fname)
+
+	say('[Release] Done.\n')
+
+def deploy(tag_name, target, build_dir, prerelease):
+	if not check_deployable(tag_name, target, prerelease):
+		return
+
+	say('[Deploy] Target: {}.\n', target)
+
+	for deployer in TARGETS[target]['deploy']:
+		deployer(build_dir)
 
 ###############################################################
 
