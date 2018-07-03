@@ -41,7 +41,7 @@ function getQueryStringParameters() {
 function toggleFullScreen(el) {
 	// Chrome
 	if (document.webkitIsFullScreen !== undefined) {
-		if (doucment.webkitIsFullScreen)
+		if (document.webkitIsFullScreen)
 			document.webkitExitFullscreen()
 		else
 			el.webkitRequestFullScreen()
