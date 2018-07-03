@@ -122,6 +122,9 @@ function checkRequest(details) {
 }
 
 function checkTab(tabId, info, tab) {
+	if (!info.url)
+		return
+
 	let hostname = extractHostname(tab.url)
 
 	if (blacklist.has(hostname)) {
