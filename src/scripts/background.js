@@ -70,10 +70,9 @@ function parseOptions(options) {
 }
 
 function checkMedia(media) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, _) => {
 		let testPlayer = document.createElement('video')
 
-		testPlayer.addEventListener('error', reject)
 		testPlayer.addEventListener('canplay', () => resolve(media))
 		testPlayer.src = media.url
 	})
@@ -116,24 +115,8 @@ function checkRequest(details) {
 				tab: tab
 			}
 
-			if (goodContentTypePattern.test(contentType.value)) {
-				// Supported Content-Type, launch the player and cancel the request.
-				startPlayer(media)
-				return {cancel: true}
-			}
-
-			if (badContentTypePattern.test(contentType.value)) {
-				// Unsupported Content-Type.
-				_log(`Can't launch player: bad Content-Type: ${contentType.value} [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson')
-				return
-			}
-
-			// Unknown Content-Type, needs "manual" check.
-			checkMedia(media).then(startPlayer, err => {
-				_log(`Can't lauhcn player: media cannot be played (Content-Type: ${contentType.value}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'crimson')
-			})
-
-			return
+			if (!badContentTypePattern.test(contentType.value))
+				checkMedia(media).then(startPlayer);
 		})
 	}
 }
@@ -147,7 +130,7 @@ function checkTab(tabId, info, tab) {
 
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
 				tabId: tabId,
-				urls: WEBREQUEST_FILTER_URLS,
+				urls : WEBREQUEST_FILTER_URLS,
 				types: WEBREQUEST_FILTER_TYPES
 			}, ['responseHeaders'])
 
@@ -166,7 +149,7 @@ function checkTab(tabId, info, tab) {
 		if (tabWatchlist.has(tabId)) {
 			chrome.webRequest.onHeadersReceived.removeListener(checkRequest, {
 				tabId: tabId,
-				urls: WEBREQUEST_FILTER_URLS,
+				urls : WEBREQUEST_FILTER_URLS,
 				types: WEBREQUEST_FILTER_TYPES
 			}, ['responseHeaders'])
 
@@ -212,11 +195,8 @@ function start() {
 	chrome.storage.onChanged.addListener(handleStorageChange)
 }
 
-// Is checking extensions the right way? Is xhr needed?
-const WEBREQUEST_FILTER_URLS  = ['*://*/*.mkv*', '*://*/*.mp4*', '*://*/*.ogv*', '*://*/*.webm*'],
-      WEBREQUEST_FILTER_TYPES = ['object', 'media', 'xmlhttprequest', 'other'],
-      contentTypePattern      = /^(application\/octet\-stream|video\/.*)$/i,
-      goodContentTypePattern  = /^video\/(mp4|webm|ogg)$/i,
+const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
+      WEBREQUEST_FILTER_TYPES = ['media'],
       badContentTypePattern   = /^video\/(x\-)?flv$/i,
       tabWatchlist            = new Set(),
       popupWatchlist          = new Set(),
