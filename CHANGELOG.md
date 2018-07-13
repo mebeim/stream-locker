@@ -4,6 +4,12 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.1][v1.0.1] — 2018-07-13
+
+Bug fixes.
+
+ - Fixed fullscreen keyboard/mouse shortcuts not working on Chrome.
+
 ### [1.0.0][v1.0.0] — 2018-06-18
 
 Complete and working!
@@ -89,6 +95,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.1]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.1
  [v1.0.0]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.0
  [v0.1.1-beta]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.1-beta
  [v0.1.0]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.0
