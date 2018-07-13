@@ -114,7 +114,7 @@ def rename_assets(build_dir):
 		bdir = get_browser_dirs(build_dir, target)[0]
 
 		if os.path.isdir(bdir):
-			for fname in os.listdir(bdir):
+			for fname in filter(lambda f: not os.path.isdir(os.path.join(bdir, f)), os.listdir(bdir)):
 				ext        = fname[fname.rfind('.'):]
 				clean_name = re.sub(r'([\w_]+-(\d+\.)+\d).*', r'\1', fname)
 				newfname   = clean_name + '-' + target + ext
@@ -130,7 +130,7 @@ def get_assets(build_dir):
 		bdir = get_browser_dirs(build_dir, target)[0]
 
 		if os.path.isdir(bdir):
-			for fname in os.listdir(bdir):
+			for fname in filter(lambda f: not os.path.isdir(os.path.join(bdir, f)), os.listdir(bdir)):
 				fullname = os.path.join(bdir, fname)
 				assets.append((fullname, mimetypes.guess_type(fullname)[0]))
 
@@ -243,7 +243,7 @@ def deploy_firefox(build_dir):
 	if sp.returncode != 0:
 		if 'Version already exists' in out:
 			say("[Deploy/firefox] Signing extension with 'web-ext sign'... version already signed.\n")
-		elif 'submitted for review' in out and 'It passed validation' in out:
+		elif 'submitted for review' in out and 'passed validation' in out:
 			say("[Deploy/firefox] Signing extension with 'web-ext sign'... submitted for review, not directly signed.\n")
 	elif sp.returncode == 0:
 		say("[Deploy/firefox] Signing extension with 'web-ext sign'... done.\n")
@@ -278,7 +278,6 @@ def build(repo, target, build_dir):
 	for builder in TARGETS[target]['build']:
 		builder(build_dir)
 
-	clean_build_dir(build_dir)
 	rename_assets(build_dir)
 
 	say('[Build] Done.\n')
@@ -314,9 +313,9 @@ def release(tag_name, build_dir, prerelease):
 		say('[Release] Creating release... done.\n')
 
 	for fname, mimetype in get_assets(build_dir):
-		say('[Release/upload] Uploading {}...\r', fname)
+		say('[Release] Uploading {}...\r', fname)
 		gh_release.upload_asset(mimetype, os.path.split(fname)[-1], open(fname, 'rb').read())
-		say('[Release/upload] Uploading {}... done.\n', fname)
+		say('[Release] Uploading {}... done.\n', fname)
 
 	say('[Release] Done.\n')
 
@@ -328,6 +327,8 @@ def deploy(tag_name, target, build_dir, prerelease):
 
 	for deployer in TARGETS[target]['deploy']:
 		deployer(build_dir)
+
+	say('[Deploy] Done.\n')
 
 ###############################################################
 
@@ -378,3 +379,5 @@ if __name__ == '__main__':
 
 	if args.deploy:
 		deploy(tag_name, args.target, args.build_dir, release_is_pre)
+
+	clean_build_dir(args.build_dir)
