@@ -115,7 +115,7 @@ function checkRequest(details) {
 				tab: tab
 			}
 
-			if (!badContentTypePattern.test(contentType.value))
+			if (!BAD_CONTENT_TYPE_EXP.test(contentType.value))
 				checkMedia(media).then(startPlayer);
 		})
 	}
@@ -200,7 +200,7 @@ function start() {
 
 const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
       WEBREQUEST_FILTER_TYPES = ['media'],
-      badContentTypePattern   = /^video\/(x\-)?flv$/i,
+      BAD_CONTENT_TYPE_EXP    = /^video\/(x\-)?flv$/i,
       tabWatchlist            = new Set(),
       popupWatchlist          = new Set(),
       blacklist               = new Map(),
