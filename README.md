@@ -3,12 +3,15 @@
 
 [![License: GPL v3][license-img]][license-link]
 [![Travis-CI build][travis-img]][travis-link]
-[![Chrome Web Store][chrome-img]][chrome-link]
-[![Firefox Add-on][firefox-img]][firefox-link]
+
+| Chrome | Firefox |
+|:------:|:-------:|
+|[![Chrome Web Store][ch-img]][ch-link] | [![Firefox Add-ons store][ff-img]][ff-link] |
+|[![][ch-users-img]][ch-link] [![][ch-rating-img]][ch-link] | [![][ff-downloads-img]][ff-link] [![][ff-users-img]][ff-link] [![][ff-rating-img]][ff-link] |
 
 Stream Locker helps you avoid the pain of watching videos in sites with clumsy players you're not familiar with and full of annoying ads and popups. Whenever you visit a blacklisted streaming site, as soon as you get to the video, it is captured by Stream Locker and loaded in the lightweight native HTML5 player of your browser, full size, in a new page without any additional element but the player, and with a set of intuitive keyboard shortcuts to play, pause, fast-forward, change volume, etc. In addition to this, any popup on blacklisted sites is automatically blocked. Try Stream Locker out, and you'll never want to watch another stream online without it!
 
-### Player keyboard/mouse shortcuts
+**Player keyboard/mouse shortcuts**:
 
  - <kbd>space</kbd> or *mouse left click*: play/pause.
  - <kbd>F</kbd> or *mouse double left click*: toggle full screen.
@@ -24,7 +27,7 @@ Installation
 
 ### From the store
 
-Simply visit the **[Chrome Web Store page][chrome-link]** or the **[Firefox Add-ons store page][firefox-link]** and install in one click.
+Simply visit the **[Chrome Web Store page][ch-link]** or the **[Firefox Add-ons store page][ff-link]** and install in one click.
 
 ### Frome source
 
@@ -59,12 +62,17 @@ Don't bother with the `--release` and `--deploy` options, They're only there for
  [3]: https://github.com/gitpython-developers/GitPython
  [4]: https://github.com/mozilla/web-ext
 
- [logo-img]:     https://raw.githubusercontent.com/mebeim/stream-locker/master/resources/images/icons/38.png
- [license-img]:  https://img.shields.io/badge/License-GPL%20v3-blue.svg
- [license-link]: https://www.gnu.org/licenses/gpl-3.0
- [travis-img]:   https://travis-ci.com/mebeim/stream-locker.svg?branch=master
- [travis-link]:  https://travis-ci.com/mebeim/stream-locker
- [chrome-img]:   https://img.shields.io/chrome-web-store/v/dendgcjgnbappncfobbbocpkcahhkajm.svg
- [chrome-link]:  https://chrome.google.com/webstore/detail/stream-locker/dendgcjgnbappncfobbbocpkcahhkajm
- [firefox-img]:  https://img.shields.io/amo/v/stream-locker.svg
- [firefox-link]: https://addons.mozilla.org/en-US/firefox/addon/stream-locker/
+ [logo-img]:         https://raw.githubusercontent.com/mebeim/stream-locker/master/resources/images/icons/38.png
+ [license-img]:      https://img.shields.io/badge/License-GPL%20v3-blue.svg
+ [license-link]:     https://www.gnu.org/licenses/gpl-3.0
+ [travis-img]:       https://travis-ci.com/mebeim/stream-locker.svg?branch=master
+ [travis-link]:      https://travis-ci.com/mebeim/stream-locker
+ [ch-img]:           https://img.shields.io/chrome-web-store/v/dendgcjgnbappncfobbbocpkcahhkajm.svg
+ [ch-users-img]:     https://img.shields.io/chrome-web-store/users/dendgcjgnbappncfobbbocpkcahhkajm.svg
+ [ch-rating-img]:    https://img.shields.io/chrome-web-store/rating/dendgcjgnbappncfobbbocpkcahhkajm.svg
+ [ch-link]:          https://chrome.google.com/webstore/detail/stream-locker/dendgcjgnbappncfobbbocpkcahhkajm
+ [ff-img]:           https://img.shields.io/amo/v/stream-locker.svg
+ [ff-users-img]:     https://img.shields.io/amo/users/stream-locker.svg
+ [ff-rating-img]:    https://img.shields.io/amo/rating/stream-locker.svg
+ [ff-downloads-img]: https://img.shields.io/amo/d/stream-locker.svg
+ [ff-link]:          https://addons.mozilla.org/en-US/firefox/addon/stream-locker/
