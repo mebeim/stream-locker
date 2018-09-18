@@ -9,7 +9,7 @@
 |[![Chrome Web Store][ch-img]][ch-link] | [![Firefox Add-ons store][ff-img]][ff-link] |
 |[![][ch-users-img]][ch-link] [![][ch-rating-img]][ch-link] | [![][ff-downloads-img]][ff-link] [![][ff-users-img]][ff-link] [![][ff-rating-img]][ff-link] |
 
-Stream Locker helps you avoid the pain of watching videos in sites with clumsy players you're not familiar with and full of annoying ads and popups. Whenever you visit a blacklisted streaming site, as soon as you get to the video, it is captured by Stream Locker and loaded in the lightweight native HTML5 player of your browser, full size, in a new page without any additional element but the player, and with a set of intuitive keyboard shortcuts to play, pause, fast-forward, change volume, etc. In addition to this, any popup on blacklisted sites is automatically blocked. Try Stream Locker out, and you'll never want to watch another stream online without it!
+Stream Locker helps you avoid the pain of watching videos in sites with clumsy players you're not familiar with and full of annoying ads and popups. Whenever you visit a blacklisted streaming site, any annoying popup is automatically blocked, and as soon as you get to the video, if compatible with HTML5, it is captured by Stream Locker and loaded in the lightweight native player of your browser, full size, in a new page without any additional element but the player, and with a set of intuitive keyboard shortcuts to play, pause, fast-forward, change volume, etc. Try Stream Locker out, and you'll never want to watch another stream online without it!
 
 **Player keyboard/mouse shortcuts**:
 
