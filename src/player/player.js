@@ -17,7 +17,7 @@
 Object.defineProperties(Number.prototype, {
 	limit: {
 		value: function (a, b) {
-			var res = this
+			let res = this
 			if (typeof a == "number" && res < a) res = a
 			if (typeof b == "number" && res > b) res = b
 			return res
@@ -26,7 +26,7 @@ Object.defineProperties(Number.prototype, {
 })
 
 function getQueryStringParameters() {
-	var qs, res = {}
+	let qs, res = {}
 
 	if (~window.location.href.indexOf('?')) {
 		qs = window.location.href.split('?')[1].split('&').map((el) => el.split('='))
@@ -58,7 +58,7 @@ function toggleFullScreen(el) {
 	}
 }
 
-var player		= document.getElementById('player'),
+let player		= document.getElementById('player'),
 	queryParams	= getQueryStringParameters(),
 	mouseHideTimeoutID
 
