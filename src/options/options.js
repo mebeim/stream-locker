@@ -14,6 +14,18 @@
 
 'use strict'
 
+function setCaretAtEnd(el) {
+	let range = document.createRange(),
+	    sel = window.getSelection()
+
+	el.focus()
+
+	range.selectNodeContents(el)
+	range.collapse(false)
+	sel.removeAllRanges()
+	sel.addRange(range)
+}
+
 function getOptions() {
 	return new Promise((resolve, _) => {
 		chrome.storage.local.get('options', storage => {
@@ -82,7 +94,7 @@ function editBlacklistedSite(i, el) {
 	if (el.textContent == 'Edit') {
 		el.textContent = 'Save';
 		hostname.setAttribute('contenteditable', true);
-		hostname.focus()
+		setCaretAtEnd(hostname)
 	} else if (el.textContent == 'Save') {
 		this.saveBlacklistedSite(i, hostname, el)
 	}
