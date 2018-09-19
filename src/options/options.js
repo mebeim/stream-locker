@@ -52,7 +52,7 @@ function addBlacklistedSite() {
 
 	let bc = document.getElementById('blacklist-container')
 
-	options.blacklist.push({hostname: ''})
+	options.blacklist.push({hostname: '', enabled: true})
 
 	this.$nextTick(() => {
 		bc.scrollTop = bc.scrollHeight

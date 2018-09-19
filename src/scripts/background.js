@@ -14,6 +14,27 @@
 
 'use strict'
 
+function compareVersions(v1, v2) {
+	let v1s = v1.split('.').map(x => parseInt(x)),
+		v2s = v2.split('.').map(x => parseInt(x))
+
+	if (v1s.length != v2s.length) {
+		if (v1s.length > v2s.length) {
+			for (let i = 0; i < v1s.length - v2s.length; i++)
+				v2s.push(0)
+		} else {
+			for (let i = 0; i < v2s.length - v1s.length; i++)
+				v1s.push(0)
+		}
+	}
+
+	for (let i = 0; i < v1s.length; i++)
+		if (v1s[i] > v2s[i])
+			return false
+
+	return true
+}
+
 function extractHostname(url) {
 	let partial = url.substring(url.indexOf('://') + 3),
 	    colon = partial.indexOf(':'),
@@ -60,7 +81,7 @@ function parseOptions(options) {
 	blacklist.clear()
 
 	options.blacklist.forEach(site => {
-		if ((site.enabled !== undefined && site.enabled) || globalOptions.enabled) {
+		if (globalOptions.enabled  && (site.enabled === undefined || site.enabled)) {
 			blacklist.set(site.hostname, {
 				blockPopups: site.blockPopups !== undefined ? site.blockPopups : globalOptions.blockPopups,
 				captureVideo: site.captureVideo !== undefined ? site.captureVideo : globalOptions.captureVideo
@@ -188,6 +209,30 @@ function handleStorageChange(changes, area) {
 function handleInstall(details) {
 	if (details.reason == 'install')
 		chrome.tabs.create({url: '/src/options/options.html'})
+
+	if (details.reason == 'update') {
+		_log('Extension updated!')
+
+		if (compareVersions(details.previousVersion, '1.0.1')) {
+			/**
+			 * Version <= 1.0.1 fix: "default" value was still present for sites,
+			 * meaning options.blacklist['some-site'].enabled was undefined by default.
+			 * This breaks the options page of version >= 1.0.2 since the default
+			 * value is not contemplated anymore for this option.
+			 */
+
+			_log('Fixing options due to update from old version (1.0.1).')
+
+			loadStorage().then(options => {
+				options.blacklist.forEach(site => {
+					if (site.enabled === undefined)
+						site.enabled = true
+				})
+
+				chrome.storage.local.set({options})
+			})
+		}
+	}
 }
 
 function start() {
