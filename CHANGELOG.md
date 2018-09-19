@@ -4,6 +4,21 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.2][v1.0.2] — 2018-09-19
+
+Small improvements and fiexes.
+
+ - Global "Extension enabled" option now fully disables the extension if set to "OFF".
+ - Sites can now either be "enabled" or "disabled", no more "default" for this value.
+ - Made input fields in the options page easier to use.
+ - The extension now correctly recognizes newly added and removed sites which already loaded without having to reload their tabs.
+ - Extension's description has been updated.
+ - Minor style and bug fixes in the options page.
+
+Developer notes:
+
+Looks like FireFox doesn't support `word-break: break-word`. Also, there may be a bug with the way `contenteditable` elements are handled, the caret is sometimes placed in a strange position.
+
 ### [1.0.1][v1.0.1] — 2018-07-13
 
 Bug fixes.
@@ -95,6 +110,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.2]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.2
  [v1.0.1]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.1
  [v1.0.0]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.0
  [v0.1.1-beta]: https://github.com/mebeim/stream-locker/releases/tag/v0.1.1-beta

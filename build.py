@@ -355,16 +355,16 @@ TARGETS = {
 }
 
 if __name__ == '__main__':
-	ENV_GH_TOKEN             = os.getenv('GH_OAUTH_TOKEN')
-	ENV_GH_RELEASE_BASENAME  = os.getenv('GH_RELEASE_BASENAME')
-	ENV_GH_RELEASE_BRANCH    = os.getenv('GH_RELEASE_BRANCH')
+	ENV_GH_TOKEN            = os.getenv('GH_OAUTH_TOKEN')
+	ENV_GH_RELEASE_BASENAME = os.getenv('GH_RELEASE_BASENAME')
+	ENV_GH_RELEASE_BRANCH   = os.getenv('GH_RELEASE_BRANCH')
 
-	ENV_AMO_JWT_ISSUER       = os.getenv('AMO_JWT_ISSUER')
-	ENV_AMO_JWT_SECRET       = os.getenv('AMO_JWT_SECRET')
+	ENV_AMO_JWT_ISSUER      = os.getenv('AMO_JWT_ISSUER')
+	ENV_AMO_JWT_SECRET      = os.getenv('AMO_JWT_SECRET')
 
-	ENV_TRAVIS_BRANCH        = os.getenv('TRAVIS_BRANCH')
-	ENV_TRAVIS_PR            = os.getenv('TRAVIS_PULL_REQUEST')
-	ENV_TRAVIS_REPO_SLUG     = os.getenv('TRAVIS_REPO_SLUG')
+	ENV_TRAVIS_BRANCH       = os.getenv('TRAVIS_BRANCH')
+	ENV_TRAVIS_PR           = os.getenv('TRAVIS_PULL_REQUEST')
+	ENV_TRAVIS_REPO_SLUG    = os.getenv('TRAVIS_REPO_SLUG')
 
 	args       = get_args()
 	git_repo   = git.Repo()
