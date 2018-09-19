@@ -358,7 +358,7 @@ section > .head {
 	text-decoration: none !important;
 }
 
-/* FF hack caret position hack */
+/* FF caret position hack */
 .editable[contenteditable="true"]::before {
 	content: '\200b';
 }
