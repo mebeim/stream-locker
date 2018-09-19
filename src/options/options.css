@@ -275,7 +275,7 @@ section > .head {
 }
 
 #blacklist-container {
-	overflow-y: scroll;
+	overflow-y: auto;
 	max-height: 300px;
 }
 
