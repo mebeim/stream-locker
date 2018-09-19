@@ -88,6 +88,9 @@ function parseOptions(options) {
 			})
 		}
 	})
+
+	// Scan all tabs whenever options change or are loaded:
+	chrome.tabs.query({}, tabs => tabs.forEach(tab => checkTab(tab.id, {url: tab.url}, tab)))
 }
 
 function checkMedia(media) {
@@ -179,6 +182,8 @@ function checkTab(tabId, info, tab) {
 
 			tabWatchlist.delete(tabId)
 			popupWatchlist.delete(tabId)
+
+			chrome.pageAction.hide(tabId)
 
 			_log(`Tab #${tabId} removed from watchlist(s).`)
 		}
