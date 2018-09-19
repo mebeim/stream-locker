@@ -68,7 +68,7 @@ function addBlacklistedSite() {
 
 	this.$nextTick(() => {
 		bc.scrollTop = bc.scrollHeight
-		editBlacklistedSite(options.blacklist.length - 1)
+		editBlacklistedSite(options.blacklist.length - 1, null, true)
 	})
 }
 
@@ -81,7 +81,7 @@ function removeBlacklistedSite(i, hostname) {
 	queueSave()
 }
 
-function editBlacklistedSite(i, el) {
+function editBlacklistedSite(i, el, isNew) {
 	if (!el)
 		el = document.querySelectorAll('#blacklist tr .hostname .edit')[i]
 
@@ -92,6 +92,9 @@ function editBlacklistedSite(i, el) {
 	let hostname = el.parentElement.querySelector('.editable')
 
 	if (el.textContent == 'Edit') {
+		if (isNew)
+			hostname.textContent = ''
+
 		el.textContent = 'Save';
 		hostname.setAttribute('contenteditable', true);
 		setCaretAtEnd(hostname)
