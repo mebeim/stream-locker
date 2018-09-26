@@ -48,8 +48,6 @@ function extractHostname(url) {
 
 function loadDefaultOptions() {
 	return new Promise((resolve, reject) => {
-		_log('No options found, loading default.')
-
 		fetch('/resources/json/defaultOptions.json').then(resp => {
 			if (resp.ok && resp.status == 200) {
 				resp.json().then(resolve, reject)
@@ -64,12 +62,14 @@ function loadDefaultOptions() {
 function loadStorage() {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(null, storage => {
-			// TODO: Load defaults anyway and check diff to see if new options need to be loaded.
-
-			if (storage.options)
-				resolve(storage.options)
-			else
-				loadDefaultOptions().then(options => chrome.storage.local.set({options}, () => resolve(options)))
+			loadDefaultOptions().then(defaultOptions => {
+				if (storage.options) {
+					resolve(Object.assign(storage.options, defaultOptions))
+				} else {
+					_log('No options found in storage, using defaults.')
+					chrome.storage.local.set({options: defaultOptions}, () => resolve(defaultOptions))
+				}
+			})
 		})
 	})
 }
@@ -226,7 +226,7 @@ function handleInstall(details) {
 			 * value is not contemplated anymore for this option.
 			 */
 
-			_log('Fixing options due to update from old version (1.0.1).')
+			_log('Fixing options due to update from old version (<= 1.0.1).')
 
 			loadStorage().then(options => {
 				options.blacklist.forEach(site => {
