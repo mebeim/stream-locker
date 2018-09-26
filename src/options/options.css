@@ -258,11 +258,6 @@ section > .head {
 
 #blacklist-head {
 	box-sizing: border-box;
-	padding-right: 8px;
-}
-
-#blacklist-head thead {
-	margin-right: 8px;
 }
 
 #blacklist-head th {
