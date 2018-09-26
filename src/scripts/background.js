@@ -78,6 +78,9 @@ function parseOptions(options) {
 	for (let k of Object.keys(options.global))
 		globalOptions[k] = options.global[k]
 
+	for (let k of Object.keys(options.advanced))
+		advancedOptions[k] = options.advanced[k]
+
 	blacklist.clear()
 
 	options.blacklist.forEach(site => {
@@ -97,7 +100,11 @@ function checkMedia(media) {
 	return new Promise((resolve, _) => {
 		let testPlayer = document.createElement('video')
 
-		testPlayer.addEventListener('canplay', () => resolve(media))
+		testPlayer.addEventListener('canplay', () => {
+			if (testPlayer.duration >= advancedOptions.minumumVideoDuration)
+				resolve(media)
+		})
+
 		testPlayer.src = media.url
 	})
 }
@@ -254,7 +261,8 @@ const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
       tabWatchlist            = new Set(),
       popupWatchlist          = new Set(),
       blacklist               = new Map(),
-      globalOptions           = new Object()
+	  globalOptions           = new Object(),
+	  advancedOptions         = new Object()
 
 chrome.runtime.onInstalled.addListener(handleInstall)
 loadStorage().then(parseOptions).then(start)
