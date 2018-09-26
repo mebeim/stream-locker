@@ -5,5 +5,9 @@
 		"enabled": true,
 		"blockPopups": true,
 		"captureVideo": true
+	},
+
+	"advanced": {
+		"minumumVideoDuration": 600
 	}
 }
