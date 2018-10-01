@@ -46,6 +46,10 @@ function extractHostname(url) {
 	return partial.substr(0, len)
 }
 
+function checkAllTabs() {
+	chrome.tabs.query({}, tabs => tabs.forEach(tab => checkTab(tab.id, {url: tab.url}, tab)))
+}
+
 function loadDefaultOptions() {
 	return new Promise((resolve, reject) => {
 		fetch('/resources/json/defaultOptions.json').then(resp => {
@@ -91,9 +95,6 @@ function parseOptions(options) {
 			})
 		}
 	})
-
-	// Scan all tabs whenever options change or are loaded:
-	chrome.tabs.query({}, tabs => tabs.forEach(tab => checkTab(tab.id, {url: tab.url}, tab)))
 }
 
 function checkMedia(media) {
@@ -215,6 +216,7 @@ function handleStorageChange(changes, area) {
 		if ('options' in changes)
 			// TODO: maybe optimize this?
 			parseOptions(changes.options.newValue)
+			checkAllTabs()
 	}
 }
 
@@ -253,6 +255,7 @@ function start() {
 	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups)
 	chrome.runtime.onMessage.addListener(handleMessage)
 	chrome.storage.onChanged.addListener(handleStorageChange)
+	checkAllTabs()
 }
 
 const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
