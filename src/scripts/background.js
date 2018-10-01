@@ -102,7 +102,7 @@ function checkMedia(media) {
 		let testPlayer = document.createElement('video')
 
 		testPlayer.addEventListener('canplay', () => {
-			if (testPlayer.duration >= advancedOptions.minumumVideoDuration)
+			if (testPlayer.duration >= advancedOptions.minimumVideoDuration)
 				resolve(media)
 		})
 
