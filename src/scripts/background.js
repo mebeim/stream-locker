@@ -68,7 +68,12 @@ function loadStorage() {
 		chrome.storage.local.get(null, storage => {
 			loadDefaultOptions().then(defaultOptions => {
 				if (storage.options) {
-					resolve(Object.assign(storage.options, defaultOptions))
+					// This COULD be made in a cooler way.
+					let merged = Object.assign({}, defaultOptions, storage.options)
+					merged.global = Object.assign({}, defaultOptions.global, storage.options.global)
+					merged.advanced = Object.assign({}, defaultOptions.advanced, storage.options.advanced)
+
+					resolve(merged)
 				} else {
 					_log('No options found in storage, using defaults.')
 					chrome.storage.local.set({options: defaultOptions}, () => resolve(defaultOptions))
