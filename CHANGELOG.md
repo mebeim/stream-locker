@@ -4,6 +4,20 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.3][v1.0.3] — 2018-12-13
+
+New option, performance improvements and style fixes.
+
+ - Added advanced option to choose minimum duration of videos to capture (defaul 10m). Shorter videos will not be captured by the extension.
+ - Added advanced options section in options page.
+ - Improved tab checking: only check when needed.
+ - Fixed options page blacklist alignment.
+
+Developer notes:
+
+ - Still working on screenshots, ugh. It will probably take forever to find something that makes sense.
+ - Personal advice to anyone who did not switch back to the old player style on Chrome: do your eyes a favor and go to `chrome://flags/#enable-modern-media-controls` to disable the new awful media controls.
+
 ### [1.0.2][v1.0.2] — 2018-09-19
 
 Small improvements and fiexes.
@@ -110,6 +124,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.3]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.3
  [v1.0.2]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.2
  [v1.0.1]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.1
  [v1.0.0]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.0
