@@ -57,6 +57,19 @@
 
 			<section>
 				<div class="head">
+					<h1>Advanced options</h1>
+				</div>
+				<div id="advanced" class="content">
+					<label>
+						<span>Only capture videos at least</span>
+						<input type="number" min="0" max="999" v-model="options.advanced.minimumVideoDuration" @input="queueSave">
+						<span>minutes long.</span>
+					</label>
+				</div>
+			</section>
+
+			<section>
+				<div class="head">
 					<h1>Blacklist</h1>
 					<h2>This is your blacklist: add sites to it, and Stream Locker will do its job when you visit them. You can enable or disable a site, decide whether to capture videos to load them in the lightweight native player and whether to block popups. Please, only specify the <i>hostname</i> of the site (i.e. <i>without</i> "http://").</h2>
 				</div>

@@ -232,6 +232,12 @@ section > .head {
 	display: inline-block;
 }
 
+/***** ADVANCED OPTIONS *****/
+
+#advanced label span+input {
+	margin: 0 5px;
+}
+
 /***** BLACKLIST ****/
 
 .blacklist-table {
