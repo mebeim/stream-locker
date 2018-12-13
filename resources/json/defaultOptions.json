@@ -8,6 +8,6 @@
 	},
 
 	"advanced": {
-		"minimumVideoDuration": 600
+		"minimumVideoDuration": 10
 	}
 }
