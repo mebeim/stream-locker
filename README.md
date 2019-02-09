@@ -33,7 +33,7 @@ Simply visit the **[Chrome Web Store page][ch-link]** or the **[Firefox Add-ons 
 
 Feel free to install any version of the extension from source. You can either check the **available [releases][1]** or clone the repo and build it yourself (see how in the next section).
 
-If you're bothering with this I'm going assume you know what you're doing. I mean, you obviously know that installing from source is possible dragging and dropping the extension's `.zip` file in `chrome://extensions` (for Chrome) or `about:debugging` (for Firefox), right?. You probably also already know that installing from unsigned source will make your browser complain, but if you want to have fun, go ahead!
+If you're bothering with this I'm going to assume you know what you're doing. I mean, you obviously know that installing from source is possible dragging and dropping the extension's `.zip` file in `chrome://extensions` (for Chrome) or `about:debugging` (for Firefox), right?. You probably also already know that installing from unsigned source will make your browser complain, but if you want to have fun, go ahead!
 
 Building
 --------
