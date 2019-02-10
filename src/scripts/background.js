@@ -16,7 +16,7 @@
 
 function compareVersions(v1, v2) {
 	let v1s = v1.split('.').map(x => parseInt(x)),
-		v2s = v2.split('.').map(x => parseInt(x))
+	    v2s = v2.split('.').map(x => parseInt(x))
 
 	if (v1s.length != v2s.length) {
 		if (v1s.length > v2s.length) {
@@ -226,8 +226,12 @@ function handleStorageChange(changes, area) {
 }
 
 function handleInstall(details) {
-	if (details.reason == 'install')
-		chrome.tabs.create({url: '/src/options/options.html'})
+	if (details.reason == 'install') {
+		JUST_INSTALLED = true
+
+		if (JUST_STARTED)
+			chrome.tabs.create({url: '/src/options/options.html'})
+	}
 
 	if (details.reason == 'update') {
 		_log('Extension updated!')
@@ -261,6 +265,11 @@ function start() {
 	chrome.runtime.onMessage.addListener(handleMessage)
 	chrome.storage.onChanged.addListener(handleStorageChange)
 	checkAllTabs()
+
+	if (JUST_INSTALLED)
+		chrome.tabs.create({url: '/src/options/options.html'})
+
+	JUST_STARTED = true
 }
 
 const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
@@ -269,8 +278,11 @@ const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
       tabWatchlist            = new Set(),
       popupWatchlist          = new Set(),
       blacklist               = new Map(),
-	  globalOptions           = new Object(),
-	  advancedOptions         = new Object()
+      globalOptions           = new Object(),
+      advancedOptions         = new Object()
+
+let JUST_INSTALLED = false,
+    JUST_STARTED   = false
 
 chrome.runtime.onInstalled.addListener(handleInstall)
 loadStorage().then(parseOptions).then(start)
