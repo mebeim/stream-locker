@@ -4,6 +4,12 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.4][v1.0.4] — 2019-02-10
+
+Bug fixes, boring stuff.
+
+ - Fixed a bug that sometimes aused the options page to not correctly display right after installing the extension.
+
 ### [1.0.3][v1.0.3] — 2018-12-13
 
 New option, performance improvements and style fixes.
@@ -124,6 +130,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.4
  [v1.0.3]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.3
  [v1.0.2]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.2
  [v1.0.1]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.1
