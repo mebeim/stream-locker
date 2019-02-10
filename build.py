@@ -69,13 +69,17 @@ def parse_changelog(fname):
 		if ok:
 			changelog.append(l)
 
-	h    = changelog.pop(0)
-	date = datetime.strptime(h[h.rfind('—')+len('—'):].strip(), '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
+	matches = re.findall(r'\d{4}-\d{2}-\d{2}', changelog.pop(0))
+
+	if not matches:
+		return None
+
+	date = datetime.strptime(matches[0], '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
 
 	while not changelog[0]:
 		changelog.pop(0)
 
-	head = date + ' — ' + '**' + changelog[0] + '**'
+	head = '{} — **{}**'.format(date, changelog[0])
 	body = '\n'.join(changelog[1:]).strip('\n')
 
 	return head + '\n\n' + body
@@ -144,7 +148,7 @@ def get_assets(build_dir):
 def check_releasable(tag_name):
 	if not (ENV_GH_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_GH_RELEASE_BRANCH and ENV_TRAVIS_REPO_SLUG and ENV_TRAVIS_BRANCH and ENV_TRAVIS_PR):
 		say('[Release] Error: missing one or more needed environment variables, aborting.\n')
-		exit(1)
+		sys.exit(1)
 
 	if ENV_TRAVIS_PR == '1':
 		say('[Release] Skipping release: this is a pull request.\n')
@@ -179,7 +183,7 @@ def check_deployable(tag_name, target, prerelease):
 
 	if target not in TARGETS.keys():
 		say('[Deploy] Error: unknown target "{}", aborting.\n', target)
-		exit(1)
+		sys.exit(1)
 
 	return True
 
@@ -201,7 +205,7 @@ def web_ext_build(bdir, sdir, browser_name):
 	else:
 		say("[Build/{}] Error: 'web-ext build' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
 		say(out)
-		exit(1)
+		sys.exit(1)
 
 	say('[Build/{}] Done.\n', browser_name)
 
@@ -220,7 +224,7 @@ def deploy_chrome(_):
 def deploy_firefox(build_dir):
 	if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
 		say('[Deploy/firefox] Error: missing one or more needed environment variables, aborting.\n')
-		exit(1)
+		sys.exit(1)
 
 	bdir, sdir = get_browser_dirs(build_dir, 'firefox')
 
@@ -238,39 +242,38 @@ def deploy_firefox(build_dir):
 		stderr=subprocess.STDOUT
 	)
 
-	out = sp.communicate()[0]
+	out = sp.communicate()[0].lower()
 
-	if sp.returncode != 0:
-		if 'Version already exists' in out:
-			say("[Deploy/firefox] Signing extension with 'web-ext sign'... version already signed.\n")
-		elif 'submitted for review' in out and 'passed validation' in out:
-			say("[Deploy/firefox] Signing extension with 'web-ext sign'... submitted for review, not directly signed.\n")
-	elif sp.returncode == 0:
+	if sp.returncode == 0:
 		say("[Deploy/firefox] Signing extension with 'web-ext sign'... done.\n")
+	elif sp.returncode != 0 and 'version already exists' in out:
+		say("[Deploy/firefox] Signing extension with 'web-ext sign'... version already signed.\n")
+	elif sp.returncode != 0 and 'submitted for review' in out and 'passed validation' in out:
+			say("[Deploy/firefox] Signing extension with 'web-ext sign'... submitted for review, not directly signed.\n")
 	else:
 		say("[Deploy/firefox] Error: 'web-ext sign' exited with code {}, aborting.\n\n", sp.returncode)
 		say(out)
-		exit(1)
+		sys.exit(1)
 
 	say('[Deploy/firefox] Done.\n')
 
 def build(repo, target, build_dir):
 	if os.getcwd() == os.path.abspath(build_dir):
 		say('[Build] Error: cannot build in source directory.\n')
-		exit(1)
+		sys.exit(1)
 
 	if not os.path.isdir(build_dir):
 		try:
 			os.makedirs(build_dir)
 		except:
 			say('[Build] Error: unable to create build directory "{}", aborting.\n', build_dir)
-			exit(1)
+			sys.exit(1)
 
 	tag_name = repo.git.describe('--tags')
 
 	if target not in TARGETS.keys():
 		say('[Build] Error: unknown target "{}", aborting.\n', target)
-		exit(1)
+		sys.exit(1)
 
 	say('[Build] Target: {}.\n', target)
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
@@ -291,13 +294,18 @@ def release(tag_name, build_dir, prerelease):
 	user, repo = ENV_TRAVIS_REPO_SLUG.split('/')
 	release_name = ENV_GH_RELEASE_BASENAME + ' ' + tag_name
 	release_body = None
-	release_is_pre = prerelease or any(s in tag_name for s in ('-alpha', '-beta'))
+	release_is_pre = prerelease or any(s in tag_name for s in ('-alpha', '-beta', '-pre'))
 
 	say('[Release] Releasing {}.\n', release_name)
 
 	if not prerelease:
 		say('[Release] Parsing changelog...\r')
+
 		release_body = parse_changelog('CHANGELOG.md')
+		if not release_body:
+			say('[Release] Error: could not correctly parse changelog, aborting.')
+			sys.exit(1)
+
 		say('[Release] Parsing changelog... done.\n')
 
 	gh_repo    = github3.login(token=ENV_GH_TOKEN).repository(user, repo)
