@@ -8,13 +8,13 @@ Versions
 
 Bug fixes, boring stuff.
 
- - Fixed a bug that sometimes aused the options page to not correctly display right after installing the extension.
+ - Fixed a bug that sometimes caused the options page to not correctly display right after installing the extension.
 
 ### [1.0.3][v1.0.3] — 2018-12-13
 
 New option, performance improvements and style fixes.
 
- - Added advanced option to choose minimum duration of videos to capture (defaul 10m). Shorter videos will not be captured by the extension.
+ - Added advanced option to choose minimum duration of videos to capture (default 10m). Shorter videos will not be captured by the extension.
  - Added advanced options section in options page.
  - Improved tab checking: only check when needed.
  - Fixed options page blacklist alignment.
@@ -26,7 +26,7 @@ Developer notes:
 
 ### [1.0.2][v1.0.2] — 2018-09-19
 
-Small improvements and fiexes.
+Small improvements and fixes.
 
  - Global "Extension enabled" option now fully disables the extension if set to "OFF".
  - Sites can now either be "enabled" or "disabled", no more "default" for this value.
@@ -75,14 +75,14 @@ Solved issues:
 
 Developer notes:
 
-Integrated automatic build/realease/deploy script, the extension is now easily buildable by anyone. Firefox Add-ons Store deployment is automatic from Travis-CI, while Chrome Web Store deployment requires manual OAuth with expiring token, so unfortunately it can't be automated. Packaged assets will be manually added (if I figure out it makes sense adding them).
+Integrated automatic build/release/deploy script, the extension is now easily buildable by anyone. Firefox Add-ons Store deployment is automatic from Travis-CI, while Chrome Web Store deployment requires manual OAuth with expiring token, so unfortunately it can't be automated. Packaged assets will be manually added (if I figure out it makes sense adding them).
 
 ### [0.1.0][v0.1.0] (alpha) — 2018-06-06
 
 Welcome to Beta.
 
  - Mozilla Firefox support (though still not permanent install).
- - Finally implemented a reliable solution for pupup detection and blocking.
+ - Finally implemented a reliable solution for popup detection and blocking.
  - Code style reformat to ES6.
  - Added some sites to blacklist.
 
@@ -116,7 +116,7 @@ First public release.
  - Removed video_extensions list, useless.
  - Added seek time control through keyboard arrow keys.
  - Player page title is now the same as the original page.
- - Faster pupup tab close.
+ - Faster popup tab close.
 
 ### 0.0.2 (alpha) — 2016-12-22
 
