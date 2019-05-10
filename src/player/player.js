@@ -62,7 +62,7 @@ let player      = document.getElementById('player'),
 
 chrome.tabs.getCurrent(tab => {
 	chrome.pageAction.show(tab.id)
-	chrome.pageAction.setTitle({tabId: tab.id, title: 'Stream Locker: playing...'})
+	chrome.pageAction.setTitle({tabId: tab.id, title: 'Stream Locker (playing)'})
 })
 
 document.title = queryParams.title

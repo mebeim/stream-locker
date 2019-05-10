@@ -184,7 +184,7 @@ function checkTab(tabId, info, tab) {
 		}
 
 		chrome.pageAction.show(tabId)
-		chrome.pageAction.setTitle({tabId: tabId, title: 'Stream Locker: this site is blacklisted.'})
+		chrome.pageAction.setTitle({tabId: tabId, title: 'Stream Locker (blacklisted site)'})
 	} else {
 		if (tabWatchlist.has(tabId)) {
 			chrome.webRequest.onHeadersReceived.removeListener(checkRequest, {
