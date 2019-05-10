@@ -29,7 +29,7 @@ Installation
 
 Simply visit the **[Chrome Web Store page][ch-link]** or the **[Firefox Add-ons store page][ff-link]** and install in one click.
 
-### Frome source
+### From source
 
 Feel free to install any version of the extension from source. You can either check the **available [releases][1]** or clone the repo and build it yourself (see how in the next section).
 
