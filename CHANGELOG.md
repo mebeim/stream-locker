@@ -4,6 +4,17 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.5][v1.0.5] — 2019-05-10
+
+Yay, more (unintended) bug fixes!
+
+ - Fixed double trigger of play/pause actions which caused the video to not play/pause at all. Chrome and Firefox updated their players, and now have built-in play/pause toggle both via click and spacebar.
+ - Removed default left and right arrow skip 10 seconds functions on Firefox, because they conflicted with the newly introduced default actions. Firefox player now skips +/= 15s by default using left and right arrows.
+
+Developer notes:
+
+Who knew that the `onkeypress` event was deprecated... wonder what I'll do when they remove it, use a custom-made `onkeydown` + `onkeyup` combiation? I'm getting old.
+
 ### [1.0.4][v1.0.4] — 2019-02-10
 
 Bug fixes, boring stuff.
@@ -130,6 +141,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.5
  [v1.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.4
  [v1.0.3]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.3
  [v1.0.2]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.2
