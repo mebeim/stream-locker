@@ -18,8 +18,8 @@ Object.defineProperties(Number.prototype, {
 	limit: {
 		value: function (a, b) {
 			let res = this
-			if (typeof a == "number" && res < a) res = a
-			if (typeof b == "number" && res > b) res = b
+			if (typeof a == 'number' && res < a) res = a
+			if (typeof b == 'number' && res > b) res = b
 			return res
 		}
 	}
@@ -38,82 +38,93 @@ function getQueryStringParameters() {
 	return res
 }
 
-function toggleFullScreen(el) {
+function toggleFullScreen() {
 	if (CHROME) {
 		if (document.webkitIsFullScreen)
 			document.webkitExitFullscreen()
 		else
-			el.webkitRequestFullScreen()
-
-		return
+			player.webkitRequestFullScreen()
 	} else {
 		if (document.mozFullScreen)
 			document.mozCancelFullScreen()
 		else
-			el.mozRequestFullScreen()
+			player.mozRequestFullScreen()
 	}
 }
 
-const CHROME = navigator.userAgent.toLowerCase().includes('chrome')
+function keyboardToggleFullScreen() {
+	if (e.code == 'KeyF')
+		toggleFullScreen()
+}
 
-let player      = document.getElementById('player'),
-	queryParams = getQueryStringParameters(),
-	mouseHideTimeoutID
+function keyboardTimeControl(e) {
+	switch (e.code) {
+		case 'ArrowLeft':
+			if (CHROME) player.currentTime = (player.currentTime - 10).limit(0, player.duration)
+			break
+		case 'ArrowRight':
+			if (CHROME) player.currentTime = (player.currentTime + 10).limit(0, player.duration)
+			break
+		case 'ArrowDown':
+			player.currentTime = (player.currentTime - 30).limit(0, player.duration)
+			break
+		case 'ArrowUp':
+			player.currentTime = (player.currentTime + 30).limit(0, player.duration)
+			break
+	}
+}
+
+function keyboardVolumeControl(e) {
+	switch (e.key) {
+		case '+':
+			player.volume = (player.volume + 0.05).limit(0, 1)
+			break
+		case '-':
+			player.volume = (player.volume - 0.05).limit(0, 1)
+			break
+	}
+}
+
+function wheelVolumeControl(e) {
+	if (e.deltaY)
+		player.volume = (player.volume - Math.sign(e.deltaY) * 0.05).limit(0, 1)
+}
+
+function saveVolume() {
+	localStorage.volume = player.volume
+}
+
+function hideMouse() {
+	document.body.style.cursor = 'default'
+
+	clearTimeout(mouseHideTimeoutID)
+
+	mouseHideTimeoutID = setTimeout(() => {
+		document.body.style.cursor = 'none'
+	}, 3000)
+}
+
+
+const CHROME = navigator.userAgent.toLowerCase().includes('chrome'),
+      player = document.getElementById('player'),
+      queryParams = getQueryStringParameters()
+
+let mouseHideTimeoutID
+
+document.title = queryParams.title
+player.type    = queryParams.contentType
+player.src     = queryParams.src
+player.volume  = parseFloat(localStorage.volume) || 0.5
 
 chrome.tabs.getCurrent(tab => {
 	chrome.pageAction.show(tab.id)
 	chrome.pageAction.setTitle({tabId: tab.id, title: 'Stream Locker (playing)'})
 })
 
-document.title = queryParams.title
-player.type = queryParams.contentType
-player.src = queryParams.src
-player.volume = parseFloat(localStorage.volume) || 0.5
-
-document.documentElement.addEventListener('keypress', e => {
-	switch (e.code) {
-		case "ArrowLeft":
-			if (CHROME) player.currentTime = (player.currentTime - 10).limit(0, player.duration)
-			break
-		case "ArrowRight":
-			if (CHROME) player.currentTime = (player.currentTime + 10).limit(0, player.duration)
-			break
-		case "ArrowDown":
-			player.currentTime = (player.currentTime - 30).limit(0, player.duration)
-			break
-		case "ArrowUp":
-			player.currentTime = (player.currentTime + 30).limit(0, player.duration)
-			break
-	}
-})
-
-document.documentElement.addEventListener('keydown', e => {
-	switch (e.key) {
-		case "+":
-			player.volume = (player.volume + 0.05).limit(0, 1)
-			break
-		case "-":
-			player.volume = (player.volume - 0.05).limit(0, 1)
-			break
-	}
-})
-
-player.addEventListener('dblclick', e => toggleFullScreen(player))
-
-player.addEventListener('wheel', e => {
-	if (e.deltaY) {
-		player.volume = (player.volume - Math.sign(e.deltaY) * 0.05).limit(0, 1)
-	}
-})
-
-player.addEventListener('volumechange', e => {
-	localStorage.volume = player.volume
-})
-
-document.documentElement.addEventListener('mousemove', e => {
-	document.body.style.cursor = 'default'
-	clearTimeout(mouseHideTimeoutID)
-	mouseHideTimeoutID = setTimeout(() => {
-		document.body.style.cursor = 'none'
-	}, 3000)
-})
+window.addEventListener('mousemove', hideMouse)
+window.addEventListener('keydown', keyboardTimeControl)
+window.addEventListener('keydown', keyboardVolumeControl)
+window.addEventListener('keypress', keyboardToggleFullScreen)
+player.addEventListener('dblclick', toggleFullScreen)
+player.addEventListener('wheel', wheelVolumeControl)
+player.addEventListener('volumechange', saveVolume)
