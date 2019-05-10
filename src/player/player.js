@@ -26,10 +26,10 @@ Object.defineProperties(Number.prototype, {
 })
 
 function getQueryStringParameters() {
-	let qs, res = {}
+	let res = {}
 
 	if (~window.location.href.indexOf('?')) {
-		qs = window.location.href.split('?')[1].split('&').map((el) => el.split('='))
+		let qs = window.location.href.split('?')[1].split('&').map((el) => el.split('='))
 
 		for (let i = 0; i < qs.length; i++)
 			res[qs[i][0]] = decodeURIComponent(qs[i][1])
@@ -58,8 +58,8 @@ function toggleFullScreen(el) {
 	}
 }
 
-let player		= document.getElementById('player'),
-	queryParams	= getQueryStringParameters(),
+let player      = document.getElementById('player'),
+	queryParams = getQueryStringParameters(),
 	mouseHideTimeoutID
 
 chrome.tabs.getCurrent(tab => {
@@ -71,18 +71,6 @@ document.title = queryParams.title
 player.type = queryParams.contentType
 player.src = queryParams.src
 player.volume = parseFloat(localStorage.volume) || 0.5
-
-document.documentElement.addEventListener('keypress', e => {
-	switch (e.code) {
-		case "Space":
-			if (player.paused) player.play()
-			else player.pause()
-			break
-		case "KeyF":
-			toggleFullScreen(player)
-			break
-	}
-})
 
 document.documentElement.addEventListener('keydown', e => {
 	switch (e.code) {
@@ -110,11 +98,6 @@ document.documentElement.addEventListener('keydown', e => {
 			player.volume = (player.volume - 0.05).limit(0, 1)
 			break
 	}
-})
-
-player.addEventListener('click', e => {
-	if (player.paused) player.play()
-	else player.pause()
 })
 
 player.addEventListener('dblclick', e => toggleFullScreen(player))
