@@ -13,12 +13,12 @@ Stream Locker helps you avoid the pain of watching videos in sites with clumsy p
 
 **Player keyboard/mouse shortcuts**:
 
- - <kbd>space</kbd> or *mouse left click*: play/pause.
+ - <kbd>space</kbd> or *mouse left click*: play/pause (browser's default).
  - <kbd>F</kbd> or *mouse double left click*: toggle full screen.
  - <kbd>+</kbd> or *mouse scroll up*: volume +5%.
  - <kbd>-</kbd> or *mouse scroll down*: volume -5%.
- - <kbd>→</kbd>: skip forward 10 seconds.
- - <kbd>←</kbd>: skip backward 10 seconds.
+ - <kbd>→</kbd>: skip forward 10 seconds (15 on Firefox).
+ - <kbd>←</kbd>: skip backward 10 seconds (15 on Firefox).
  - <kbd>↑</kbd>: skip forward 30 seconds.
  - <kbd>↓</kbd>: skip backward 30 seconds.
 
