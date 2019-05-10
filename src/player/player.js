@@ -39,24 +39,22 @@ function getQueryStringParameters() {
 }
 
 function toggleFullScreen(el) {
-	// Chrome
-	if (document.webkitIsFullScreen !== undefined) {
+	if (CHROME) {
 		if (document.webkitIsFullScreen)
 			document.webkitExitFullscreen()
 		else
 			el.webkitRequestFullScreen()
 
 		return
-	}
-
-	// Firefox
-	if (document.mozFullScreen !== undefined) {
+	} else {
 		if (document.mozFullScreen)
 			document.mozCancelFullScreen()
 		else
 			el.mozRequestFullScreen()
 	}
 }
+
+const CHROME = navigator.userAgent.toLowerCase().includes('chrome')
 
 let player      = document.getElementById('player'),
 	queryParams = getQueryStringParameters(),
@@ -72,13 +70,13 @@ player.type = queryParams.contentType
 player.src = queryParams.src
 player.volume = parseFloat(localStorage.volume) || 0.5
 
-document.documentElement.addEventListener('keydown', e => {
+document.documentElement.addEventListener('keypress', e => {
 	switch (e.code) {
 		case "ArrowLeft":
-			player.currentTime = (player.currentTime - 10).limit(0, player.duration)
+			if (CHROME) player.currentTime = (player.currentTime - 10).limit(0, player.duration)
 			break
 		case "ArrowRight":
-			player.currentTime = (player.currentTime + 10).limit(0, player.duration)
+			if (CHROME) player.currentTime = (player.currentTime + 10).limit(0, player.duration)
 			break
 		case "ArrowDown":
 			player.currentTime = (player.currentTime - 30).limit(0, player.duration)
