@@ -4,6 +4,13 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.6][v1.0.6] — 2019-05-13
+
+New volume indicator.
+
+ - Add volume indicator when changing volume through shortcuts.
+ - Fix silly bug making fullscreen keyboard shortcut not work.
+
 ### [1.0.5][v1.0.5] — 2019-05-10
 
 Yay, more (unintended) bug fixes!
@@ -141,6 +148,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.6]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.6
  [v1.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.5
  [v1.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.4
  [v1.0.3]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.3
