@@ -52,7 +52,7 @@ function toggleFullScreen() {
 	}
 }
 
-function keyboardToggleFullScreen() {
+function keyboardToggleFullScreen(e) {
 	if (e.code == 'KeyF')
 		toggleFullScreen()
 }
