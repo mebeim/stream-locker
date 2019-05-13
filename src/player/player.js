@@ -38,6 +38,17 @@ function getQueryStringParameters() {
 	return res
 }
 
+function showVolumeIndicator() {
+	clearTimeout(volumeIndicatorHideTimeoutID)
+
+	volumeIndicator.classList.add('visible')
+	volumeIndicator.textContent = `Volume: ${Math.round(player.volume * 100)}%`
+
+	volumeIndicatorHideTimeoutID = setTimeout(() => {
+		volumeIndicator.classList.remove('visible')
+	}, 1500)
+}
+
 function toggleFullScreen() {
 	if (CHROME) {
 		if (document.webkitIsFullScreen)
@@ -78,16 +89,20 @@ function keyboardVolumeControl(e) {
 	switch (e.key) {
 		case '+':
 			player.volume = (player.volume + 0.05).limit(0, 1)
+			showVolumeIndicator()
 			break
 		case '-':
 			player.volume = (player.volume - 0.05).limit(0, 1)
+			showVolumeIndicator()
 			break
 	}
 }
 
 function wheelVolumeControl(e) {
-	if (e.deltaY)
+	if (e.deltaY) {
 		player.volume = (player.volume - Math.sign(e.deltaY) * 0.05).limit(0, 1)
+		showVolumeIndicator()
+	}
 }
 
 function saveVolume() {
@@ -95,21 +110,23 @@ function saveVolume() {
 }
 
 function hideMouse() {
-	document.body.style.cursor = 'default'
-
 	clearTimeout(mouseHideTimeoutID)
 
+	document.body.style.cursor = 'default'
+
 	mouseHideTimeoutID = setTimeout(() => {
-		document.body.style.cursor = 'none'
+		document.body.style.cursor = 'none !important'
 	}, 3000)
 }
 
 
 const CHROME = navigator.userAgent.toLowerCase().includes('chrome'),
       player = document.getElementById('player'),
+      volumeIndicator = document.getElementById('volume-indicator'),
       queryParams = getQueryStringParameters()
 
-let mouseHideTimeoutID
+let mouseHideTimeoutID,
+    volumeIndicatorHideTimeoutID
 
 document.title = queryParams.title
 player.type    = queryParams.contentType
