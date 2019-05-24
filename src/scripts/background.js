@@ -103,10 +103,9 @@ function checkMedia(media) {
 	return new Promise(resolve => {
 		let testPlayer = document.createElement('video')
 
-		testPlayer.addEventListener('canplay', () => {
-			if (testPlayer.duration >= advancedOptions.minimumVideoDuration * 60)
-				resolve(media)
-		})
+		testPlayer.addEventListener('canplay', () => resolve(testPlayer.duration >= advancedOptions.minimumVideoDuration * 60))
+		testPlayer.addEventListener('error', () => resolve(false, 'unsupported'))
+		setTimeout(() => resolve(false, 'timed out'), 60000)
 
 		testPlayer.src = media.url
 	})
@@ -150,7 +149,12 @@ function checkRequest(details) {
 			}
 
 			if (!BAD_CONTENT_TYPE_EXP.test(contentType.value))
-				checkMedia(media).then(startPlayer);
+				checkMedia(media).then((ok, reason) => {
+					if (ok)
+						startPlayer(media)
+					else if (reason)
+						log(`Cannot play media, ${reason} [tab #${details.tabId} (${tab.index+1})]: ${details.url}`, 'crimson')
+				})
 		})
 	}
 }
@@ -266,7 +270,7 @@ function start() {
 	JUST_STARTED = true
 }
 
-const WEBREQUEST_FILTER_URLS  = ['*://*/*'],
+const WEBREQUEST_FILTER_URLS  = ['<all_urls>'],
       WEBREQUEST_FILTER_TYPES = ['media'],
       BAD_CONTENT_TYPE_EXP    = /^video\/(x\-)?flv$/i,
       tabWatchlist            = new Set(),
