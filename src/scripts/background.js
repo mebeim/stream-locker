@@ -64,20 +64,17 @@ function loadDefaultOptions() {
 }
 
 function loadStorage() {
-	return new Promise((resolve, reject) => {
+	return new Promise(resolve  => {
 		chrome.storage.local.get(null, storage => {
 			loadDefaultOptions().then(defaultOptions => {
-				if (storage.options) {
-					// This COULD be made in a cooler way.
-					let merged = Object.assign({}, defaultOptions, storage.options)
-					merged.global = Object.assign({}, defaultOptions.global, storage.options.global)
-					merged.advanced = Object.assign({}, defaultOptions.advanced, storage.options.advanced)
-
-					resolve(merged)
-				} else {
+				if (!storage.options)
 					_log('No options found in storage, using defaults.')
-					chrome.storage.local.set({options: defaultOptions}, () => resolve(defaultOptions))
-				}
+
+				let merged = Object.assign({}, defaultOptions, storage.options)
+				merged.global = Object.assign({}, defaultOptions.global, storage.options && storage.options.global)
+				merged.advanced = Object.assign({}, defaultOptions.advanced, storage.options && storage.options.advanced)
+
+				chrome.storage.local.set({options: merged}, () => resolve(merged))
 			})
 		})
 	})
@@ -103,7 +100,7 @@ function parseOptions(options) {
 }
 
 function checkMedia(media) {
-	return new Promise((resolve, _) => {
+	return new Promise(resolve => {
 		let testPlayer = document.createElement('video')
 
 		testPlayer.addEventListener('canplay', () => {
@@ -208,7 +205,7 @@ function unwatchTab(tabId) {
 	popupWatchlist.delete(tabId)
 }
 
-function handleMessage(request, sender, respond) {
+function handleMessage(request, _, respond) {
 	switch (request.message) {
 		case 'popup info':
 			// TODO
