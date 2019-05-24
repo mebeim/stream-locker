@@ -56,7 +56,7 @@ function loadDefaultOptions() {
 			if (resp.ok && resp.status == 200) {
 				resp.json().then(resolve, reject)
 			} else {
-				_log(`Unable to retrieve defalt options! Response status code: ${resp.status}.`, 'crimson')
+				log(`Unable to retrieve defalt options! Response status code: ${resp.status}.`, 'crimson')
 				reject()
 			}
 		}).catch(reject)
@@ -68,7 +68,7 @@ function loadStorage() {
 		chrome.storage.local.get(null, storage => {
 			loadDefaultOptions().then(defaultOptions => {
 				if (!storage.options)
-					_log('No options found in storage, using defaults.')
+					log('No options found in storage, using defaults.')
 
 				let merged = Object.assign({}, defaultOptions, storage.options)
 				merged.global = Object.assign({}, defaultOptions.global, storage.options && storage.options.global)
@@ -121,7 +121,7 @@ function startPlayer(media) {
 
 	if (site && site.captureVideo) {
 		chrome.tabs.update(media.tab.id, {url}, tab => {
-			_log(`Launched player (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
+			log(`Launched player (Content-Type: ${media.contentType}) [tab #${tab.id} (${tab.index+1}): ${tab.url}]`, 'limegreen')
 		})
 	}
 }
@@ -133,7 +133,7 @@ function startPlayer(media) {
 function blockPopups(details) {
 	if (popupWatchlist.has(details.sourceTabId)) {
 		chrome.tabs.remove(details.tabId)
-		_log(`Blocked popup from tab #${details.tabId}.`, 'orange')
+		log(`Blocked popup from tab #${details.tabId}.`, 'orange')
 	}
 }
 
@@ -163,7 +163,7 @@ function checkTab(tabId, info, tab) {
 
 	if (blacklist.has(hostname)) {
 		if (!tabWatchlist.has(tabId)) {
-			_log(`Tab #${tabId} (${tab.index+1}) loaded blacklisted hostname: ${hostname}.`)
+			log(`Tab #${tabId} (${tab.index+1}) loaded blacklisted hostname: ${hostname}.`)
 
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
 				tabId: tabId,
@@ -172,11 +172,11 @@ function checkTab(tabId, info, tab) {
 			}, ['responseHeaders'])
 
 			tabWatchlist.add(tabId)
-			_log(`Tab #${tabId} added to watchlist.`)
+			log(`Tab #${tabId} added to watchlist.`)
 
 			if (blacklist.get(hostname).blockPopups) {
 				popupWatchlist.add(tabId)
-				_log(`Tab #${tabId} added to popup watchlist.`)
+				log(`Tab #${tabId} added to popup watchlist.`)
 			}
 		}
 
@@ -192,7 +192,7 @@ function checkTab(tabId, info, tab) {
 			tabWatchlist.delete(tabId)
 			popupWatchlist.delete(tabId)
 
-			_log(`Tab #${tabId} removed from watchlist(s).`)
+			log(`Tab #${tabId} removed from watchlist(s).`)
 		}
 	}
 }
@@ -228,7 +228,7 @@ function handleInstall(details) {
 	}
 
 	if (details.reason == 'update') {
-		_log('Extension updated!')
+		log('Extension updated!')
 
 		if (compareVersions(details.previousVersion, '1.0.1')) {
 			/**
@@ -238,7 +238,7 @@ function handleInstall(details) {
 			 * value is not contemplated anymore for this option.
 			 */
 
-			_log('Fixing options due to update from old version (<= 1.0.1).')
+			log('Fixing options due to update from old version (<= 1.0.1).')
 
 			loadStorage().then(options => {
 				options.blacklist.forEach(site => {

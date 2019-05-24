@@ -14,28 +14,10 @@
 
 'use strict'
 
-const LOG_PROMPT = '>>>'
-
-function _getTimestamp() {
-	let d = new Date()
-	d = [d.getHours(), d.getMinutes(), d.getSeconds()],
-	d = `${d[0] > 9 ? d[0] : '0' + d[0]}:${d[1] > 9 ? d[1] : '0' + d[1]}:${d[2] > 9 ? d[2] : '0' + d[2]}`
-	return d
-}
-
-window.onerror = function _log_err(desc, page, line, chr) {
-	if (localStorage.log) {
-		console.log(`%c ${_getTimestamp()} ${LOG_PROMPT} ERROR: "${desc}" in ${page.split('/').reverse()[0]}:${line}:${chr}`, 'color: #FF2929')
-		return true
-	}
-}
-
-function _log() {
-	let d, color, stuff, what
+function log() {
+	let color, stuff, what
 
 	if (localStorage.log) {
-		d = _getTimestamp()
-
 		switch (arguments.length) {
 			case 3:
 				color = arguments[2],
@@ -61,11 +43,11 @@ function _log() {
 		}
 
 		if (stuff) {
-			return console.log(`%c ${d} ${LOG_PROMPT} ${what}`, `color: ${(color || '')}`, stuff)
+			return console.log(`%c ${what}`, `color: ${(color || '')}`, stuff)
 		} else if (/(string|boolean|number)/.test(typeof(what))) {
-			return console.log(`%c ${d} ${LOG_PROMPT} ${what}`, `color: ${(color || '')}`)
+			return console.log(`%c ${what}`, `color: ${(color || '')}`)
 		} else {
-			return console.log(`%c ${d} ${LOG_PROMPT}`, `color: ${(color || '')}`, what)
+			return console.log(what)
 		}
 	}
 }
