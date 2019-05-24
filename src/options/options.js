@@ -95,8 +95,8 @@ function editBlacklistedSite(i, el, isNew) {
 		if (isNew)
 			hostname.textContent = ''
 
-		el.textContent = 'Save';
-		hostname.setAttribute('contenteditable', true);
+		el.textContent = 'Save'
+		hostname.setAttribute('contenteditable', true)
 		setCaretAtEnd(hostname)
 	} else if (el.textContent == 'Save') {
 		this.saveBlacklistedSite(i, hostname, el)
@@ -111,7 +111,7 @@ function saveBlacklistedSite(i, el, btn) {
 
 	if (!btn)
 		btn = el.parentElement.querySelector('.edit')
-	btn.textContent = 'Edit';
+	btn.textContent = 'Edit'
 
 	let newHostname = fixHostname(el.textContent),
 	    oldHostname = options.blacklist[i].hostname
