@@ -133,7 +133,7 @@ function startPlayer(media) {
 function blockPopups(details) {
 	if (popupWatchlist.has(details.sourceTabId)) {
 		chrome.tabs.remove(details.tabId)
-		log(`Blocked popup from tab #${details.tabId}.`, 'orange')
+		log(`Blocked popup from tab #${details.sourceTabId}.`, 'orange')
 	}
 }
 
