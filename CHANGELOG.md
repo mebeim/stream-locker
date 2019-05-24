@@ -4,6 +4,16 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.0.7][v1.0.7] — 2019-05-24
+
+Old bugs are the worst!
+
+ - Fixed a very old bug that made default options not be merged correctly with current extension options.
+
+Developer notes:
+
+Turns out I'm blind and can't see dead obvious bugs, ouch, thanks to my friend [@mttbernardini](https://twitter.com/mttbernardini) for spotting this.
+
 ### [1.0.6][v1.0.6] — 2019-05-13
 
 New volume indicator.
@@ -148,6 +158,7 @@ First public release.
 ------------------------------------------------------------------------------------------
 *Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.0.7]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.7
  [v1.0.6]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.6
  [v1.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.5
  [v1.0.4]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.4
