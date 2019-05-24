@@ -1,0 +1,42 @@
+/**
+ * This file is part of the Stream Locker browser extension.
+ * Copyright (c) 2019 Marco Bonelli.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ */
+
+:root {
+	--stream-locker-yellow: #ffe500;
+}
+
+.fancy-checkbox {
+	user-select: none;
+	-moz-user-select: none;
+	cursor: pointer;
+	border-radius: 10px;
+	padding: 1px;
+	background-color: #a50017;
+	color:white;
+	text-align: center;
+}
+
+.fancy-checkbox.checked {
+	background-color: #005d29;
+}
+
+.fancy-checkbox.default {
+	background-color: #905050;
+	color: #f3f3f3;
+}
+
+.fancy-checkbox:hover {
+	background-color: rgba(0, 0, 0, 0.7);
+	color:var(--stream-locker-yellow);
+}
