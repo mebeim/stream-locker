@@ -134,8 +134,7 @@ player.src     = queryParams.src
 player.volume  = parseFloat(localStorage.volume) || 0.5
 
 chrome.tabs.getCurrent(tab => {
-	chrome.pageAction.show(tab.id)
-	chrome.pageAction.setTitle({tabId: tab.id, title: 'Stream Locker (playing)'})
+	chrome.browserAction.setTitle({tabId: tab.id, title: 'Stream Locker (playing)'})
 })
 
 window.addEventListener('mousemove', hideMouse)
