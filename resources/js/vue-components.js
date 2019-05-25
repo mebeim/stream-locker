@@ -21,9 +21,18 @@ Vue.component('fancy-checkbox', {
 		useDefault: {
 			default: false
 		},
+		defaultLabel: {
+			default: 'Default'
+		},
+		onLabel: {
+			default: 'YES'
+		},
+		offLabel: {
+			default: 'NO'
+		},
 		states: {
 			default: function() {
-				return this.useDefault ? ['Default', 'YES', 'NO'] : ['YES', 'NO']
+				return this.useDefault ? [this.defaultLabel, this.onLabel, this.offLabel] : [this.onLabel, this.offLabel]
 			}
 		}
 	},
