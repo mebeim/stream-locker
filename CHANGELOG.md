@@ -4,6 +4,18 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.1.0][v1.1.0] — 2019-05-26
+
+Finally an extension popup!
+
+ - New extension popup to easily manage the extension from any web page, without the need to open the settings page.
+ - Dynamic extension icon styling and title.
+ - Proper extension store image.
+
+Developer notes:
+
+Looking forward to create an automatic global blacklist for the most common streaming websites. Next versions will probably introduce an opt-out option to send anonymous usage information to start creating a built-in blocklist, much like AdBlock's easy-lists.
+
 ### [1.0.7][v1.0.7] — 2019-05-24
 
 Old bugs are the worst!
@@ -159,6 +171,7 @@ First public release.
 
 *Copyright &copy; 2017-19 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.1.0]: https://github.com/mebeim/stream-locker/releases/tag/v1.1.0
  [v1.0.7]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.7
  [v1.0.6]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.6
  [v1.0.5]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.5
