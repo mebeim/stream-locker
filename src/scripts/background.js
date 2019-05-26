@@ -199,14 +199,6 @@ function unwatchTab(tabId) {
 	popupWatchlist.delete(tabId)
 }
 
-function handleMessage(request, _, respond) {
-	switch (request.message) {
-		case 'popup info':
-			// TODO
-			respond('something')
-	}
-}
-
 function handleStorageChange(changes, area) {
 	if (area == 'local') {
 		if ('options' in changes)
@@ -253,7 +245,6 @@ function start() {
 	chrome.tabs.onUpdated.addListener(checkTab)
 	chrome.tabs.onRemoved.addListener(unwatchTab)
 	chrome.webNavigation.onCreatedNavigationTarget.addListener(blockPopups)
-	chrome.runtime.onMessage.addListener(handleMessage)
 	chrome.storage.onChanged.addListener(handleStorageChange)
 	checkAllTabs()
 
