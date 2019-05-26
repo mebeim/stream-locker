@@ -90,6 +90,11 @@ function parseOptions(options) {
 			})
 		}
 	})
+
+	if (globalOptions.enabled)
+		chrome.browserAction.setIcon({path: ICON_ENABLED})
+	else
+		chrome.browserAction.setIcon({path: ICON_DISABLED})
 }
 
 function checkMedia(media) {
@@ -153,13 +158,10 @@ function checkRequest(details) {
 }
 
 function checkTab(tabId, info, tab) {
-	if (!info.url)
-		return
-
 	let hostname = extractHostname(tab.url)
 
 	if (blacklist.has(hostname)) {
-		if (!tabWatchlist.has(tabId)) {
+		if (info.url && !tabWatchlist.has(tabId)) {
 			log(`Tab #${tabId} (${tab.index+1}) loaded blacklisted hostname: ${hostname}.`)
 
 			chrome.webRequest.onHeadersReceived.addListener(checkRequest, {
@@ -178,6 +180,8 @@ function checkTab(tabId, info, tab) {
 		}
 
 		chrome.browserAction.setTitle({tabId, title: 'Stream Locker (blacklisted site)'})
+		chrome.browserAction.setBadgeText({tabId, text: '\u2713'})
+		chrome.browserAction.setBadgeBackgroundColor({tabId, color: '#009900'})
 	} else {
 		if (tabWatchlist.has(tabId)) {
 			chrome.webRequest.onHeadersReceived.removeListener(checkRequest, {
@@ -191,6 +195,9 @@ function checkTab(tabId, info, tab) {
 
 			log(`Tab #${tabId} removed from watchlist(s).`)
 		}
+
+		chrome.browserAction.setTitle({tabId, title: 'Stream Locker'})
+		chrome.browserAction.setBadgeText({tabId, text: ''})
 	}
 }
 
@@ -256,8 +263,25 @@ function start() {
 
 const WEBREQUEST_FILTER_URLS  = ['<all_urls>'],
       WEBREQUEST_FILTER_TYPES = ['media'],
-      BAD_CONTENT_TYPE_EXP    = /^video\/(x\-)?flv$/i,
-      tabWatchlist            = new Set(),
+      BAD_CONTENT_TYPE_EXP    = /^video\/(x\-)?flv$/i
+
+const ICON_ENABLED = {
+	16: '../../resources/images/icons/16.png',
+	19: '../../resources/images/icons/19.png',
+	38: '../../resources/images/icons/38.png',
+	64: '../../resources/images/icons/64.png',
+	128: '../../resources/images/icons/128.png'
+}
+
+const ICON_DISABLED = {
+	16: '../../resources/images/icons/bw16.png',
+	19: '../../resources/images/icons/bw19.png',
+	38: '../../resources/images/icons/bw38.png',
+	64: '../../resources/images/icons/bw64.png',
+	128: '../../resources/images/icons/bw128.png'
+}
+
+const tabWatchlist            = new Set(),
       popupWatchlist          = new Set(),
       blacklist               = new Map(),
       globalOptions           = new Object(),
