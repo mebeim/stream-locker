@@ -4,6 +4,16 @@ Stream Locker Changelog
 Versions
 --------
 
+### [1.1.1][v1.1.1] — 2019-05-26
+
+Firefox plz.
+
+ - Fixed a deadly bug on Firefox that destroyed all user options opon save.
+
+Developer notes:
+
+Oh boy, I sure love browsers changing behavior unexpectedly and breaking all the functionalities you implemented. Read the commit messages if you want to know more ;).
+
 ### [1.1.0][v1.1.0] — 2019-05-26
 
 Finally an extension popup!
@@ -171,6 +181,7 @@ First public release.
 
 *Copyright &copy; 2017-19 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
+ [v1.1.1]: https://github.com/mebeim/stream-locker/releases/tag/v1.1.1
  [v1.1.0]: https://github.com/mebeim/stream-locker/releases/tag/v1.1.0
  [v1.0.7]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.7
  [v1.0.6]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.6
