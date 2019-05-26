@@ -36,14 +36,7 @@ function compareVersions(v1, v2) {
 }
 
 function extractHostname(url) {
-	let partial = url.substring(url.indexOf('://') + 3),
-	    colon = partial.indexOf(':'),
-	    slash = partial.indexOf('/'),
-	    len = Math.max(colon, slash)
-
-	if (len == -1)
-		return partial
-	return partial.substr(0, len)
+	return new URL(url).hostname
 }
 
 function checkAllTabs() {
