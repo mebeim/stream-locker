@@ -40,7 +40,8 @@ function getInfo() {
 }
 
 function saveAll() {
-	chrome.storage.local.set({options})
+	// Thank Firefox for this monstrosity.
+	chrome.storage.local.set({options: JSON.parse(JSON.stringify(options))})
 }
 
 function addToBlacklist() {
