@@ -1,6 +1,6 @@
 /**
  * This file is part of the Stream Locker browser extension.
- * Copyright (c) 2017 Marco Bonelli.
+ * Copyright (c) 2017-19 Marco Bonelli.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

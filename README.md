@@ -53,9 +53,9 @@ You can also specify a custom build directory with `--build-dir` and a custom ta
 
 Don't bother with the `--release` and `--deploy` options, They're only there for me to automate releases and deployment, and also need a bunch of environment variables to work, including secret API tokens which obviously you don't have.
 
-------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
 
-*Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
+*Copyright &copy; 2017-19 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
  [1]: https://github.com/mebeim/stream-locker/releases
  [2]: https://www.python.org/

@@ -155,8 +155,9 @@ First public release.
 
  - First alpha version!
 
-------------------------------------------------------------------------------------------
-*Copyright &copy; 2017 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
+---------------------------------------------------------------------------------------------
+
+*Copyright &copy; 2017-19 Marco Bonelli. Licensed under the GNU General Public License v3.0.*
 
  [v1.0.7]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.7
  [v1.0.6]: https://github.com/mebeim/stream-locker/releases/tag/v1.0.6
