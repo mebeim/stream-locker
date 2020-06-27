@@ -155,7 +155,7 @@ def check_releasable(tag_name):
 		return False
 
 	if ENV_TRAVIS_BRANCH != ENV_GH_RELEASE_BRANCH:
-		say('[Release] Skipping release: current branch ({}) is not designed release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
+		say('[Release] Skipping release: current branch ({}) is not designated release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
 		return False
 
 	if tag_name is None:
@@ -174,7 +174,7 @@ def check_deployable(tag_name, target, prerelease):
 		return False
 
 	if ENV_TRAVIS_BRANCH != ENV_GH_RELEASE_BRANCH:
-		say('[Deploy] Skipping deploy: current branch ({}) is not designed release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
+		say('[Deploy] Skipping deploy: current branch ({}) is not designated release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
 		return False
 
 	if tag_name is None:
