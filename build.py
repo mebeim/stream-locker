@@ -22,16 +22,16 @@ def get_args():
 	parser.add_argument('--build-dir', default='./build', metavar='PATH', help='build directory')
 	parser.add_argument('--web-ext', default='web-ext', metavar='PATH', help='path to web-ext binary')
 	parser.add_argument('target', nargs='?', default='all', help='target to build, one of: ' + ', '.join(sorted(TARGETS)))
-
 	return parser.parse_args()
 
-def get_head_tag_name(repo):
+def get_head_branch_and_tag(repo):
+	branch_name = repo.active_branch.name
 	tag_name = repo.git.describe('--tags')
 
 	for tag in repo.tags:
 		if tag.name == tag_name:
-			return tag_name
-	return None
+			return branch_name, tag_name
+	return branch_name, None
 
 def merge_json(a, b, out):
 	with open(a, 'r') as f:
@@ -146,39 +146,39 @@ def get_assets(build_dir):
 
 	return assets
 
-def check_releasable(tag_name):
-	if not (ENV_GH_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_GH_RELEASE_BRANCH and ENV_TRAVIS_REPO_SLUG and ENV_TRAVIS_BRANCH and ENV_TRAVIS_PR):
+def check_releasable(branch, tag):
+	if not (ENV_GH_RELEASE_TOKEN and ENV_GH_RELEASE_BASENAME and ENV_GH_RELEASE_BRANCH and ENV_GITHUB_REPOSITORY):
 		say('[Release] Error: missing one or more needed environment variables, aborting.\n')
 		sys.exit(1)
 
-	if ENV_TRAVIS_PR == '1':
+	if ENG_GITHUB_HEAD_REF:
 		say('[Release] Skipping release: this is a pull request.\n')
 		return False
 
-	if ENV_TRAVIS_BRANCH != ENV_GH_RELEASE_BRANCH:
-		say('[Release] Skipping release: current branch ({}) is not designated release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
+	if branch != ENV_GH_RELEASE_BRANCH:
+		say('[Release] Skipping release: current branch ({}) is not designated release/deploy branch ({}).\n', branch, ENV_GH_RELEASE_BRANCH)
 		return False
 
-	if tag_name is None:
+	if tag is None:
 		say('[Release] Skipping release: HEAD not pointing to a tag.\n')
 		return False
 
 	return True
 
-def check_deployable(tag_name, target, prerelease):
+def check_deployable(branch, tag, target, prerelease):
 	if prerelease:
 		say('[Deploy] Skipping deploy: pre-release.\n')
 		return False
 
-	if ENV_TRAVIS_PR == '1':
+	if ENG_GITHUB_HEAD_REF:
 		say('[Deploy] Skipping deploy: this is a pull request.\n')
 		return False
 
-	if ENV_TRAVIS_BRANCH != ENV_GH_RELEASE_BRANCH:
-		say('[Deploy] Skipping deploy: current branch ({}) is not designated release/deploy branch ({}).\n', ENV_TRAVIS_BRANCH, ENV_GH_RELEASE_BRANCH)
+	if branch != ENV_GH_RELEASE_BRANCH:
+		say('[Deploy] Skipping deploy: current branch ({}) is not designated release/deploy branch ({}).\n', branch, ENV_GH_RELEASE_BRANCH)
 		return False
 
-	if tag_name is None:
+	if tag is None:
 		say('[Deploy] Skipping deploy: HEAD not pointing to a tag.\n')
 		return False
 
@@ -286,16 +286,16 @@ def build(repo, target, build_dir, web_ext_path='web-ext'):
 
 	say('[Build] Done.\n')
 
-def release(tag_name, build_dir, prerelease):
+def release(branch, tag, build_dir, prerelease):
 	import github3
 
-	if not check_releasable(tag_name):
-		return None
+	if not check_releasable(branch, tag):
+		return
 
-	user, repo = ENV_TRAVIS_REPO_SLUG.split('/')
-	release_name = ENV_GH_RELEASE_BASENAME + ' ' + tag_name
+	user, repo = ENV_GITHUB_REPOSITORY.split('/')
+	release_name = ENV_GH_RELEASE_BASENAME + ' ' + tag
 	release_body = None
-	release_is_pre = prerelease or any(s in tag_name for s in ('-alpha', '-beta', '-pre'))
+	release_is_pre = prerelease or any(s in tag for s in ('-alpha', '-beta', '-pre'))
 
 	say('[Release] Releasing {}.\n', release_name)
 
@@ -309,16 +309,16 @@ def release(tag_name, build_dir, prerelease):
 
 		say('[Release] Parsing changelog... done.\n')
 
-	gh_repo    = github3.login(token=ENV_GH_TOKEN).repository(user, repo)
+	gh_repo    = github3.login(token=ENV_GH_RELEASE_TOKEN).repository(user, repo)
 	gh_release = None
 
 	say('[Release] Creating release...\r')
 
 	try:
-		gh_release = gh_repo.release_from_tag(tag_name)
+		gh_release = gh_repo.release_from_tag(tag)
 		say('[Release] Creating release... already existing.\n')
 	except github3.exceptions.NotFoundError:
-		gh_release = gh_repo.create_release(tag_name, name=release_name, body=release_body, prerelease=release_is_pre)
+		gh_release = gh_repo.create_release(tag, name=release_name, body=release_body, prerelease=release_is_pre)
 		say('[Release] Creating release... done.\n')
 
 	for fname, mimetype in get_assets(build_dir):
@@ -328,8 +328,8 @@ def release(tag_name, build_dir, prerelease):
 
 	say('[Release] Done.\n')
 
-def deploy(tag_name, target, build_dir, prerelease, web_ext_path='web-ext'):
-	if not check_deployable(tag_name, target, prerelease):
+def deploy(branch, tag, target, build_dir, prerelease, web_ext_path='web-ext'):
+	if not check_deployable(branch, tag, target, prerelease):
 		return
 
 	say('[Deploy] Target: {}.\n', target)
@@ -364,29 +364,28 @@ TARGETS = {
 }
 
 if __name__ == '__main__':
-	ENV_GH_TOKEN            = os.getenv('GH_OAUTH_TOKEN')
-	ENV_GH_RELEASE_BASENAME = os.getenv('GH_RELEASE_BASENAME')
-	ENV_GH_RELEASE_BRANCH   = os.getenv('GH_RELEASE_BRANCH')
+	# Provided globally by GitHub actions
+	ENV_GITHUB_REPOSITORY = os.getenv('GITHUB_REPOSITORY')
+	ENG_GITHUB_HEAD_REF   = os.getenv('GITHUB_HEAD_REF')
 
+	# Provided through workflow config (.yml)
+	ENV_GH_RELEASE_BRANCH   = os.getenv('GH_RELEASE_BRANCH')
+	ENV_GH_RELEASE_BASENAME = os.getenv('GH_RELEASE_BASENAME')
+	ENV_GH_RELEASE_TOKEN    = os.getenv('GH_RELEASE_TOKEN')
 	ENV_AMO_JWT_ISSUER      = os.getenv('AMO_JWT_ISSUER')
 	ENV_AMO_JWT_SECRET      = os.getenv('AMO_JWT_SECRET')
 
-	ENV_TRAVIS_BRANCH       = os.getenv('TRAVIS_BRANCH')
-	ENV_TRAVIS_PR           = os.getenv('TRAVIS_PULL_REQUEST')
-	ENV_TRAVIS_REPO_SLUG    = os.getenv('TRAVIS_REPO_SLUG')
-
-	args       = get_args()
-	git_repo   = git.Repo()
-	gh_release = None
+	args           = get_args()
+	git_repo       = git.Repo()
+	branch, tag    = get_head_branch_and_tag(git_repo)
+	release_is_pre = tag is not None and tag.endswith('-pre')
 
 	build(git_repo, args.target, args.build_dir, args.web_ext)
-	tag_name = get_head_tag_name(git_repo)
-	release_is_pre = (tag_name[-4:] == '-pre') if tag_name else False
 
 	if args.release:
-		release(tag_name, args.build_dir, release_is_pre)
+		release(branch, tag, args.build_dir, release_is_pre)
 
 	if args.deploy:
-		deploy(tag_name, args.target, args.build_dir, release_is_pre)
+		deploy(branch, tag, args.target, args.build_dir, release_is_pre, args.web_ext)
 
 	clean_build_dir(args.build_dir)

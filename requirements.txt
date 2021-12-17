@@ -1,2 +1,2 @@
-GitPython
+GitPython>=3.1.20
 github3.py

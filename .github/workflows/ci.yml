@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, developing ]
+  pull_request:
+    branches: [ master, developing ]
+
+jobs:
+  build-release-deploy:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # need to fetch full history for `git describe` to work
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        pip install -U -r requirements.txt
+        npm i web-ext
+    - name: Build, release, deploy
+      run: ./build.py --release --deploy --web-ext './node_modules/web-ext/bin/web-ext' all
+      env:
+        GH_RELEASE_BRANCH: master
+        GH_RELEASE_BASENAME: 'Stream Locker'
+        GH_RELEASE_TOKEN: ${{ secrets.GH_OAUTH_TOKEN }}
+        AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+        AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
