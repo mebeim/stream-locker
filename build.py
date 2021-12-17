@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -20,6 +20,7 @@ def get_args():
 	parser.add_argument('--release', action='store_true', help='create GitHub release')
 	parser.add_argument('--deploy', action='store_true', help='deploy extensions')
 	parser.add_argument('--build-dir', default='./build', metavar='PATH', help='build directory')
+	parser.add_argument('--web-ext', default='web-ext', metavar='PATH', help='path to web-ext binary')
 	parser.add_argument('target', nargs='?', default='all', help='target to build, one of: ' + ', '.join(sorted(TARGETS)))
 
 	return parser.parse_args()
@@ -187,11 +188,11 @@ def check_deployable(tag_name, target, prerelease):
 
 	return True
 
-def web_ext_build(bdir, sdir, browser_name):
+def web_ext_build(bdir, sdir, browser_name, web_ext_path='web-ext'):
 	say('[Build/{}] Running web-ext build...\r', browser_name)
 
 	sp = subprocess.Popen(
-		['web-ext', 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
+		[web_ext_path, 'build', '--source-dir=' + sdir, '--artifacts-dir=' + bdir, '--overwrite-dest'],
 		stdout=subprocess.PIPE,
 		stderr=subprocess.STDOUT
 	)
@@ -201,7 +202,7 @@ def web_ext_build(bdir, sdir, browser_name):
 	say("[Build/{}] Building extension with 'web-ext build'...\r", browser_name)
 
 	if sp.returncode == 0:
-		say("[Build/{}] Building extension with 'web-ext build'... done\n", browser_name)
+		say("[Build/{}] Building extension with 'web-ext build'... done.\n", browser_name)
 	else:
 		say("[Build/{}] Error: 'web-ext build' exited with code {}, aborting.\n\n", browser_name, sp.returncode)
 		say(out)
@@ -209,19 +210,19 @@ def web_ext_build(bdir, sdir, browser_name):
 
 	say('[Build/{}] Done.\n', browser_name)
 
-def build_chrome(build_dir):
+def build_chrome(build_dir, web_ext_path='web-ext'):
 	bdir, sdir = create_browser_dirs(build_dir, 'chrome')
-	web_ext_build(bdir, sdir, 'chrome')
+	web_ext_build(bdir, sdir, 'chrome', web_ext_path)
 
-def build_firefox(build_dir):
+def build_firefox(build_dir, web_ext_path='web-ext'):
 	bdir, sdir = create_browser_dirs(build_dir, 'firefox')
-	web_ext_build(bdir, sdir, 'firefox')
+	web_ext_build(bdir, sdir, 'firefox', web_ext_path)
 
 def deploy_chrome(_):
 	say("[Deploy/chrome] Unfortunately Google doesn't like automatic deployment :(\n")
 	say('[Deploy/chrome] Done.\n')
 
-def deploy_firefox(build_dir):
+def deploy_firefox(build_dir, web_ext_path='web-ext'):
 	if not (ENV_AMO_JWT_ISSUER and ENV_AMO_JWT_SECRET):
 		say('[Deploy/firefox] Error: missing one or more needed environment variables, aborting.\n')
 		sys.exit(1)
@@ -232,7 +233,7 @@ def deploy_firefox(build_dir):
 
 	sp = subprocess.Popen(
 		[
-			'web-ext', 'sign',
+			web_ext_path, 'sign',
 			'--api-key=' + ENV_AMO_JWT_ISSUER,
 			'--api-secret=' + ENV_AMO_JWT_SECRET,
 			'--source-dir=' + sdir,
@@ -257,7 +258,7 @@ def deploy_firefox(build_dir):
 
 	say('[Deploy/firefox] Done.\n')
 
-def build(repo, target, build_dir):
+def build(repo, target, build_dir, web_ext_path='web-ext'):
 	if os.getcwd() == os.path.abspath(build_dir):
 		say('[Build] Error: cannot build in source directory.\n')
 		sys.exit(1)
@@ -279,7 +280,7 @@ def build(repo, target, build_dir):
 	say('[Build] Building {} ({}).\n', tag_name, repo.head.commit.hexsha)
 
 	for builder in TARGETS[target]['build']:
-		builder(build_dir)
+		builder(build_dir, web_ext_path)
 
 	rename_assets(build_dir)
 
@@ -327,14 +328,14 @@ def release(tag_name, build_dir, prerelease):
 
 	say('[Release] Done.\n')
 
-def deploy(tag_name, target, build_dir, prerelease):
+def deploy(tag_name, target, build_dir, prerelease, web_ext_path='web-ext'):
 	if not check_deployable(tag_name, target, prerelease):
 		return
 
 	say('[Deploy] Target: {}.\n', target)
 
 	for deployer in TARGETS[target]['deploy']:
-		deployer(build_dir)
+		deployer(build_dir, web_ext_path)
 
 	say('[Deploy] Done.\n')
 
@@ -378,7 +379,7 @@ if __name__ == '__main__':
 	git_repo   = git.Repo()
 	gh_release = None
 
-	build(git_repo, args.target, args.build_dir)
+	build(git_repo, args.target, args.build_dir, args.web_ext)
 	tag_name = get_head_tag_name(git_repo)
 	release_is_pre = (tag_name[-4:] == '-pre') if tag_name else False
 
