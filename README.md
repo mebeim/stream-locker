@@ -1,13 +1,13 @@
 ![Logo][logo-img] Stream Locker
 ===============================
 
-[![License: GPL v3][license-img]][license-link]
-[![Travis-CI build][travis-img]][travis-link]
+> [!NOTE]
+> As of June 2024, after the decision of Chrome to switch to Manifest v3, this
+> extension is no longer maintained. I am keeping the project up so that its
+> source code may be useful to others, but will not update the extension
+> anymore.
 
-| Chrome | Firefox |
-|:------:|:-------:|
-|[![Chrome Web Store][ch-img]][ch-link] | [![Firefox Add-ons store][ff-img]][ff-link] |
-|[![][ch-users-img]][ch-link] [![][ch-rating-img]][ch-link] | [![][ff-downloads-img]][ff-link] [![][ff-users-img]][ff-link] [![][ff-rating-img]][ff-link] |
+[![License: GPL v3][license-img]][license-link]
 
 Stream Locker helps you avoid the pain of watching videos in sites with clumsy players you're not familiar with and full of annoying ads and popups. Whenever you visit a blacklisted streaming site, any annoying popup is automatically blocked, and as soon as you get to the video, if compatible with HTML5, it is captured by Stream Locker and loaded in the lightweight native player of your browser, full size, in a new page without any additional element but the player, and with a set of intuitive keyboard shortcuts to play, pause, fast-forward, change volume, etc. Try Stream Locker out, and you'll never want to watch another stream online without it!
 
